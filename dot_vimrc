@@ -1,0 +1,123 @@
+" Steve's vimrc (Modified from the original Mandrake vimrc)
+" Steve <lonetwin@yahoo.com>
+"
+" Notes:
+" - the 'set spell' below will only work on vim 7.0 onwards, when spell
+"   checking was built-in into vim. If you are using an earlier version of vim
+"   install the vimspell.vim plugin
+" - use ":help statusline" to understand and modify rulerformat and statusline
+" - be sure you change the 'backupdir' and 'dictionary' to suit your preference
+" - keybinding you might want to change: pastetoggle, cycle between windows,
+
+" Use Vim defaults (much better!)
+set nocompatible
+
+"Turn syntax highlighting on.
+syntax on
+
+"Makes syntax highlighting lighter.
+set background=dark
+
+"Set the colorscheme
+colorscheme desert
+
+"Show the position of the cursor.
+set ruler
+set rulerformat=%50(%-30(%f%)\ %l,%c%V\ %p%%%)
+
+" Show the mode we are in
+set showmode
+
+"Set a statusbar.
+set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
+
+"Show (partial) command in status line.
+set showcmd
+
+"Terminal for 80 char ? so vim can play till 79 char.
+set textwidth=79
+set wrap                        " wrap text at textwidth
+set autoindent                  " automatically indent
+set smartindent                 " Do it 'smartly'. ":help si" for more info
+set backspace=eol,start,indent  " Backspace over eol, start of line and indents
+set tabstop=8                   " Tabs (ASCII 0x09) are always 8 characters !!!
+set softtabstop=4 shiftwidth=4  " default indentation level
+set expandtab                   " use spaces instead of tabs for indentation
+set smarttab                    " ...but do it smartly. ":help st" for more info
+set incsearch                   " Show the matches as we type them out
+set hlsearch                    " Highlight all matches of the last search pattern
+set ignorecase                  " Ignore case in search pattern
+set showmatch                   " show matching parens/brackets
+set nojoinspaces                " insert only 1 space following a '.' when joining lines
+set history=50                  " Keep command history
+set backup                      " Keep backup of files
+set backupdir=$HOME/tmp/vimbkup " where to keep 'em
+set dictionary+=/usr/share/dict/words " For completion
+set spell spelllang=en_us       " We no how to spelle
+set infercase                   " infer case from the case of the pattern being typed
+set warn                        " Give a warning message when a shell command
+                                " is used while the buffer has been changed.
+set modeline                    " Set the 'modeline' if they have been defined
+                                " in the file that you are editing
+set pastetoggle=<F2>            " Mapping to take care of unsetting ai and
+                                " smartindent when pasting text.
+
+" Turn on filetype plugin
+filetype on
+filetype plugin on
+filetype indent on
+
+" Make the up and down movements move by "display" lines:
+map j      gj
+map k      gk
+map <Down> gj
+map <Up>   gk
+
+" Cycle between windows and make active window full size
+map <C-M> <C-W>w<C-W>_
+
+" Source man plugin (I need it all the time, even when mailing mom)
+runtime! ftplugin/man.vim
+
+let loaded_netrwPlugin = 1    " Don't load the netrw plugin
+
+" Stuff that I am picky about:
+" - don't automatically ^fix^ leading/trailing space errors in C files ...
+let c_space_errors = 1
+
+"   ...but hurt my eyes by highlighting them
+highlight WhitespaceEOL ctermbg=red guibg=red
+match WhitespaceEOL /\s\+$/
+
+" autocommands
+if has("autocmd")
+    " common stuff
+    " When editing a file, always jump to the last cursor position
+    autocmd BufReadPost *
+    \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+    \   exe "normal! g'\"" |
+    \ endif
+
+    " spec files
+    autocmd BufNewFile *.spec
+    \ 0r $HOME/.vim/template.spec | ks | call NewSpec() | 's
+        fun NewSpec()
+            exe "g/Name:/s/Name:/Name:\t\t" . expand("%:t:r")
+            let spec_chglog_format = "%a %b %d %Y My Name <my@email.com>"
+        endfun
+
+    " python files
+    " Read the vim syntax file for python to know what this does
+    autocmd BufNewFile,BufRead *.py let python_highlight_all = 1
+
+    " taglist plugin - close when taglist is the only open window
+    let Tlist_Exit_OnlyWindow = 1
+
+endif
+
+" CVS plugin defaults
+augroup CVSCommand
+    au CVSCommand User CVSBufferCreated silent! nmap <unique> <buffer> q:bwipeout<cr>
+    let CVSCommandEdit = 'split'        " Split the buffer instead of replacing it
+    let CVSCommandDiffSplit = 'edit'    " ...but don't do it for diff's
+augroup END
