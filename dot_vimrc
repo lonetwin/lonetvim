@@ -19,7 +19,7 @@ syntax on
 set background=dark
 
 "Set the colorscheme
-colorscheme desert
+colorscheme ron
 
 "Show the position of the cursor.
 set ruler
