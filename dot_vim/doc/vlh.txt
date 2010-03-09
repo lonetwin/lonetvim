@@ -1,0 +1,264 @@
+	VLH  VimLocalHistory - automatic version control for vim.
+
+	Author:		David J. Hamilton <davidjh@hjdivad.com>
+	Contributors:	Earl Barr <barr@cs.ucdavis.edu>
+
+						*vlh* *vimlocalhistory*
+	Contents:
+		Requirements.............................|vlh-requirements|
+		Installation.............................|vlh-installation|
+		Commands.................................|vlh-commands|
+		Configuration............................|vlh-configuration|
+		Release notes............................|vlh-release-notes|
+		TODO.....................................|vlh-todo|
+		Alternatives.............................|vlh-alternatives|
+
+
+VLH automatically saves buffers on write using git.  This provides a convenient,
+automatic backup system of, e.g. files in /etc that are modified, as well as a
+poor man's "local history" (a lá the eclipse feature with the same name).
+
+Feedback, bug reports and suggestions gratefully accepted at <vlh@hjdivad.com>.
+
+
+==============================================================================
+REQUIREMENTS					*vlh-requirements*	{{{1
+
+Git must be installed on your system and `git' must be in your PATH.  Tested
+on git version 1.5.4.3 on Ubuntu Hardy.
+
+Vim must be compiled with +ruby
+
+
+}}}
+==============================================================================
+INSTALLATION					*vlh-installation*	{{{1
+
+
+To install from a tarball:
+
+	After ensuring that you meet the requirements, copy the contents of
+	plugin to user-specific vim plugin directory, probably ~/.vim/plugin/
+
+	To install documentation, copy README (this file) to your vim
+	documentations directory, such as ~/.vim/doc/vlh.txt.  After copying
+	the documentation, execute ":helptags ~/.vim/doc" from within vim to
+	make the documentation accessible.
+
+To install from source:
+
+	Install the requirements, additionally installing rake version 0.8.1
+	or higher, and then execute
+
+		rake install
+
+	which will install the plugin and documentation.
+
+
+Once VLH is installed, make sure to edit your ~/.vimrc to include
+
+	let g:vlh_repository_dir = "/path/where/youd/like/to/store/localhistory"
+
+I suggest using ~/.vim/localhistory.
+
+
+}}}
+==============================================================================
+COMMANDS						*vlh-commands*	{{{1
+
+All commands accept a single argument, a number that specifies which past
+revision to use.  1 is the previous revision, 2 is the revision prior to that,
+etc.  
+
+All commands autocomplete (starting at 1) which can be used to ensure that the
+revision you pass in is legal.  The autocomplete feature also provides
+additional information after the revision number, namely the date of that
+revision.
+
+
+VLHOpen <revision>					*VLHOpen*
+	Opens the <revision>th prior version of the current buffer's path.
+
+VLHDiff <revision>					*VLHDiff*
+	Opens the <revision>th prior version of the current buffer's path,
+	which is then |diffsplit|.
+
+VLHReplace <revision>					*VLHReplace*
+	Reverts the current buffer's path to the <revision>th prior version
+	and sets |nomodified|.
+
+
+}}}
+==============================================================================
+CONFIGURATION 					*vlh-configuration*	{{{
+
+The following can be set either in your vimrc file, or can be set
+"dynamically", i.e. you can set them from within vim and the changes will take
+effect immediately.
+
+
+g:vlh_respository_dir
+
+	This specifies the path to your git repository.  The path must exist,
+	although it is not necessary to initialize the repository with `git
+	init`.
+
+g:vlh_exclude_file_pattern
+
+	A pattern to match against files to be exempted from automatic backup.
+	This pattern is a {ruby} regular expression, not a vim pattern.
+
+g:vlh_exclude_path_pattern
+
+	A pattern to match against paths to be exempted from automatic backup.
+	This pattern is a {ruby} regular expression, not a vim pattern.
+
+
+------------------------------------------------------------------------
+
+These can't be changed dynamically.  They must be specified in your vimrc and
+changes made after vim has launched are ignored.
+
+
+g:vlh_log_dir
+
+	A path to output a rather minimal log file.  Only useful for
+	debugging.
+
+
+}}}
+==============================================================================
+RELEASE NOTES					*vlh-release-notes*	{{{1
+
+0.2
+	Initial version.  Once users configure a location for the repo, they
+	now get a copy of every file they save.  User-specific ignore patterns
+	are supported.
+}}}
+==============================================================================
+TODO							*vlh-todo*	{{{1
+
+
+Deal with project-todo and project-fixme
+
+Maybe package for debian
+	http://pkg-vim.alioth.debian.org/vim-policy.txt
+
+Add some rudimentary benchmarking
+
+git commit errors (in log) when there was no change -- i.e. when you :w a
+buffer that hasn't been modified
+
+Add Tagging
+
+Periodic gc or something
+stripping out older revs when repo gets too big
+
+VLH* completion
+	add ++.. from git-lg
+
+VLHOpen
+	set bufhidden delete
+	set unmodifiable
+
+Deal with slow VLH* autocomplete .. maybe
+
+Fix VLHDiff
+	We need to set nodiff after the diff'd buffer closes
+
+Implement scp://*
+	g:vlh_scp_root_path  default to '.remotes'
+	treat those as roots, e.g.
+		/home
+		/.remotes
+			/myhost1
+				/
+			/myhost2
+
+File history buffer
+	view (git lg ...)
+	open
+	diff
+	restore
+	edit msg
+		- replace the buffer with another buffer that just has the commit msg
+		- on save, kill the new buffer and show the previous one again
+
+	make readonly
+
+	Highlight (either with git's colouring or with syntax highlighting)
+
+	In addition to syntax highlighting (commits, authors, etc.) also highlight
+	the selected item (several lines), to make clear the target of commands
+	(open/diff/restore/edit msg)
+
+
+------------------------------------------------------------------------
+Long Term (maybe features)
+
+edit history message feature
+cleanup disk space feature
+delete commit feature
+unify local history and repository history
+	(e.g. support diffs of some local history revision against a repo. version)
+load undo history
+	It might be cool to run a command that configures the undo stack to let
+	you undo/redo through revisions.  So if your undo stack is currently 
+		A -> B ->C
+	we could (perhaps) prepend it with one item per revision, so that undoing
+	past A essentially resulted in replacing the entire buffer with the
+	previous version of the file
+
+
+}}}
+==============================================================================
+ALTERNATIVES					*vlh-alternatives*	{{{1
+
+If VLH doesn't quite meet your needs, feedback, bug reports and suggestions
+are gratefully accepted  at <vlh@hjdivad.com>.  Other people have also
+attacked this problem and you might prefer their solutions.
+
+
+------------------------------------------------------------------------
+writebackupVersionControl.vim
+http://www.vim.org/scripts/script.php?script_id=1829
+
+Adds some version control functions (diff, restore) to writebackup.vim.
+
+
+------------------------------------------------------------------------
+writebackup.vim
+http://www.vim.org/scripts/script.php?script_id=1828
+
+A poor man's revision control system.  Provides a WriteBackup command to
+manually create backups.
+
+
+------------------------------------------------------------------------
+backup.vim
+http://www.vim.org/scripts/script.php?script_id=1537
+
+Holds numbered backups inside a separate directory.
+
+
+------------------------------------------------------------------------
+rcsvers.vim
+http://vim.sourceforge.net/scripts/script.php?script_id=563
+
+Saves backups in RCS whenever a file is saved.  Inspired by savevers.vim.
+
+
+------------------------------------------------------------------------
+savevers.vim
+http://vim.sourceforge.net/scripts/script.php?script_id=89
+
+Automatically saves and compares multiple, sequentially numbered old revisions
+of files.
+
+
+}}}
+
+
+
+
+vim:ft=help ts=8 sw=8 noexpandtab tw=78 foldmethod=marker

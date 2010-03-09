@@ -2,9 +2,10 @@ ScriptID SourceID Filename
 --------------------------
 642 8136 GetLatestVimScripts.vim
 273 7701 taglist.vim
-90 12274 vcscommand.vim
+90 12440 vcscommand.vim
 2012 8564 openssl.vim
 1643 11853 supertab.vim
+2442 9505 vimlocalhistory.vim
 
 
 642 8136 :AutoInstall: getscript.vim

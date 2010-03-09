@@ -1,0 +1,10 @@
+lonetwin's vim files.
+
+These are just a backup of my .vimrc and .vim/ files.
+
+%changelog
+* Tue Mar 09 2010 steve@lonetwin.net
+- Added the VimLocalHistory script and changed backup method from the builtin
+  to this one.
+
+

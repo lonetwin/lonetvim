@@ -44,14 +44,17 @@ set tabstop=8                   " Tabs (ASCII 0x09) are always 8 characters !!!
 set softtabstop=4 shiftwidth=4  " default indentation level
 set expandtab                   " use spaces instead of tabs for indentation
 set smarttab                    " ...but do it smartly. ":help st" for more info
+set preserveindent              " ...however, don't mess with existing indents
 set incsearch                   " Show the matches as we type them out
 set hlsearch                    " Highlight all matches of the last search pattern
 set ignorecase                  " Ignore case in search pattern
 set showmatch                   " show matching parens/brackets
 set nojoinspaces                " insert only 1 space following a '.' when joining lines
 set history=50                  " Keep command history
-set backup                      " Keep backup of files
-set backupdir=$HOME/tmp/vimbkup " where to keep 'em
+" set backup                      " Keep backup of files
+" set backupdir=$HOME/tmp/vimbkup " where to keep 'em
+" ^^^^ we now use vlh script backup using git !
+let g:vlh_repository_dir = expand("$HOME/tmp/vimbkup")
 set dictionary+=/usr/share/dict/words " For completion
 set spell spelllang=en_us       " We no how to spelle
 set infercase                   " infer case from the case of the pattern being typed

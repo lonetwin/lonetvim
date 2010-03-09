@@ -171,6 +171,9 @@ VCSCommandSVNDiffOpt	vcscommand.txt	/*VCSCommandSVNDiffOpt*
 VCSCommandSVNExec	vcscommand.txt	/*VCSCommandSVNExec*
 VCSCommandSplit	vcscommand.txt	/*VCSCommandSplit*
 VCSCommandVCSTypeOverride	vcscommand.txt	/*VCSCommandVCSTypeOverride*
+VLHDiff	vlh.txt	/*VLHDiff*
+VLHOpen	vlh.txt	/*VLHOpen*
+VLHReplace	vlh.txt	/*VLHReplace*
 b:VCSCommandCommand	vcscommand.txt	/*b:VCSCommandCommand*
 b:VCSCommandOriginalBuffer	vcscommand.txt	/*b:VCSCommandOriginalBuffer*
 b:VCSCommandSourceFile	vcscommand.txt	/*b:VCSCommandSourceFile*
@@ -262,3 +265,12 @@ vcscommand-ssh-other	vcscommand.txt	/*vcscommand-ssh-other*
 vcscommand-ssh-wrapper	vcscommand.txt	/*vcscommand-ssh-wrapper*
 vcscommand-statusline	vcscommand.txt	/*vcscommand-statusline*
 vcscommand.txt	vcscommand.txt	/*vcscommand.txt*
+vimlocalhistory	vlh.txt	/*vimlocalhistory*
+vlh	vlh.txt	/*vlh*
+vlh-alternatives	vlh.txt	/*vlh-alternatives*
+vlh-commands	vlh.txt	/*vlh-commands*
+vlh-configuration	vlh.txt	/*vlh-configuration*
+vlh-installation	vlh.txt	/*vlh-installation*
+vlh-release-notes	vlh.txt	/*vlh-release-notes*
+vlh-requirements	vlh.txt	/*vlh-requirements*
+vlh-todo	vlh.txt	/*vlh-todo*
