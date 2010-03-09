@@ -3,6 +3,9 @@ lonetwin's vim files.
 These are just a backup of my .vimrc and .vim/ files.
 
 %changelog
+* Tue Mar 09 2010 Steven Fernandez <lonetwin@fedoraproject.org>
+- Spruced up the spec file autocmds and fixed the error in vlh's git-init call.
+
 * Tue Mar 09 2010 steve@lonetwin.net
 - Added the VimLocalHistory script and changed backup method from the builtin
   to this one.

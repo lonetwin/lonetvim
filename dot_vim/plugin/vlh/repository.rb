@@ -198,7 +198,7 @@ class VimLocalHistory::Repository
 	end
 
 	def initialize_repository
-		system "cd #{location} && touch .gitignore && git-init > /dev/null "
+		system "cd #{location} && touch .gitignore && git init > /dev/null "
 		git_add_and_commit_all(
 			"Initial commit from VimLocalHistory"
 		)

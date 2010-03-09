@@ -54,7 +54,7 @@ set history=50                  " Keep command history
 " set backup                      " Keep backup of files
 " set backupdir=$HOME/tmp/vimbkup " where to keep 'em
 " ^^^^ we now use vlh script backup using git !
-let g:vlh_repository_dir = expand("$HOME/tmp/vimbkup")
+let g:vlh_repository_dir = expand("$HOME/tmp/vimbkup/vlh_repo")
 set dictionary+=/usr/share/dict/words " For completion
 set spell spelllang=en_us       " We no how to spelle
 set infercase                   " infer case from the case of the pattern being typed
@@ -102,11 +102,12 @@ if has("autocmd")
     \ endif
 
     " spec files
+    autocmd BufNewFile,BufRead *.spec
+    \ let packager = "Steven Fernandez <lonetwin@fedoraproject.org>"
     autocmd BufNewFile *.spec
     \ 0r $HOME/.vim/template.spec | ks | call NewSpec() | 's
         fun NewSpec()
             exe "g/Name:/s/Name:/Name:\t\t" . expand("%:t:r")
-            let spec_chglog_format = "%a %b %d %Y My Name <my@email.com>"
         endfun
 
     " python files
