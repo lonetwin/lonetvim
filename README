@@ -1,13 +1,22 @@
 lonetwin's vim files.
+=====================
 
-These are just a backup of my .vimrc and .vim/ files.
+    These are just a backup of my .vimrc and .vim/ files.
 
 %changelog
-* Tue Mar 09 2010 Steven Fernandez <lonetwin@fedoraproject.org>
-- Spruced up the spec file autocmds and fixed the error in vlh's git-init call.
+----------
+  * Mon Oct 11 2010 Steven Fernandez <lonetwin@fedoraproject.org>
+    - No longer use vlh (commented it out for now, haven't removed it yet)
+    - Make use of omni-completion.
+    - Added xml-plugin
+    - Updated plugins to latest versions
 
-* Tue Mar 09 2010 steve@lonetwin.net
-- Added the VimLocalHistory script and changed backup method from the builtin
-  to this one.
+  * Tue Mar 09 2010 Steven Fernandez <lonetwin@fedoraproject.org>
+    - Spruced up the spec file autocmds and fixed the error in vlh's git-init
+      call.
+
+  * Tue Mar 09 2010 steve@lonetwin.net
+    - Added the VimLocalHistory script and changed backup method from the
+      builtin to this one.
 
 

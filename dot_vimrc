@@ -15,11 +15,21 @@ set nocompatible
 "Turn syntax highlighting on.
 syntax on
 
+" Turn on filetype plugin
+filetype on
+filetype plugin on
+filetype indent on
+
+"Set the colorscheme - my terminal is usually dark, but i like my gvim
+"backgroud white, so i use different colorschemes for vim Vs gvim
+if has("gui_running")
+   colorscheme zellner
+else
+   colorscheme ron
+endif
+
 "Makes syntax highlighting lighter.
 set background=dark
-
-"Set the colorscheme
-colorscheme ron
 
 "Show the position of the cursor.
 set ruler
@@ -51,10 +61,11 @@ set ignorecase                  " Ignore case in search pattern
 set showmatch                   " show matching parens/brackets
 set nojoinspaces                " insert only 1 space following a '.' when joining lines
 set history=50                  " Keep command history
-" set backup                      " Keep backup of files
-" set backupdir=$HOME/tmp/vimbkup " where to keep 'em
-" ^^^^ we now use vlh script backup using git !
-let g:vlh_repository_dir = expand("$HOME/tmp/vimbkup/vlh_repo")
+set backup                      " Keep backup of files
+set backupdir=$HOME/tmp/vimbkup " where to keep 'em
+" let g:vlh_repository_dir = expand("$HOME/tmp/vimbkup/vlh_repo")
+" we do not use vlh script any more ..
+let loaded_vlh = 1
 set dictionary+=/usr/share/dict/words " For completion
 set spell spelllang=en_us       " We no how to spelle
 set infercase                   " infer case from the case of the pattern being typed
@@ -65,10 +76,14 @@ set modeline                    " Set the 'modeline' if they have been defined
 set pastetoggle=<F2>            " Mapping to take care of unsetting ai and
                                 " smartindent when pasting text.
 
-" Turn on filetype plugin
-filetype on
-filetype plugin on
-filetype indent on
+" Completion options
+" - set up omni-completion
+setlocal omnifunc=syntaxcomplete#Complete
+" - tell supertab plugin to be context sensitive for completion
+let g:SuperTabDefaultCompletionType = "context"
+" - the python omni-completion shows the doc string in a `preview` buffer,
+"   which is distracting for us. Turn it off
+set completeopt=menu,longest
 
 " Make the up and down movements move by "display" lines:
 map j      gj
@@ -82,7 +97,7 @@ map <C-M> <C-W>w<C-W>_
 " Source man plugin (I need it all the time, even when mailing mom)
 runtime! ftplugin/man.vim
 
-let loaded_netrwPlugin = 1    " Don't load the netrw plugin
+" let loaded_netrwPlugin = 1    " Don't load the netrw plugin
 
 " Stuff that I am picky about:
 " - don't automatically ^fix^ leading/trailing space errors in C files ...
