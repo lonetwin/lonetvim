@@ -23,7 +23,7 @@ filetype indent on
 "Set the colorscheme - my terminal is usually dark, but i like my gvim
 "backgroud white, so i use different colorschemes for vim Vs gvim
 if has("gui_running")
-   colorscheme zellner
+   colorscheme desert
 else
    colorscheme ron
 endif
@@ -55,6 +55,7 @@ set softtabstop=4 shiftwidth=4  " default indentation level
 set expandtab                   " use spaces instead of tabs for indentation
 set smarttab                    " ...but do it smartly. ":help st" for more info
 set preserveindent              " ...however, don't mess with existing indents
+set selection=exclusive         " In visual mode, do not select character under cursor
 set incsearch                   " Show the matches as we type them out
 set hlsearch                    " Highlight all matches of the last search pattern
 set ignorecase                  " Ignore case in search pattern
@@ -81,6 +82,8 @@ set pastetoggle=<F2>            " Mapping to take care of unsetting ai and
 setlocal omnifunc=syntaxcomplete#Complete
 " - tell supertab plugin to be context sensitive for completion
 let g:SuperTabDefaultCompletionType = "context"
+" - tell supertab plugin to only complete when there isn't a leading whitespace
+let g:SuperTabLeadingSpaceCompletion = 0
 " - the python omni-completion shows the doc string in a `preview` buffer,
 "   which is distracting for us. Turn it off
 set completeopt=menu,longest
@@ -128,6 +131,12 @@ if has("autocmd")
     " python files
     " Read the vim syntax file for python to know what this does
     autocmd BufNewFile,BufRead *.py let python_highlight_all = 1
+
+    " html/templates -- turn off textwidth
+    autocmd BufNewFile,BufRead *.html,*.pt set textwidth=0
+
+    " for json files use javascript highlighting
+    autocmd BufNewFile,BufRead *.json set ft=javascript
 
     " taglist plugin - close when taglist is the only open window
     let Tlist_Exit_OnlyWindow = 1
