@@ -33,7 +33,7 @@ set background=dark
 
 "Show the position of the cursor.
 set ruler
-set rulerformat=%50(%-30(%f%)\ %l,%c%V\ %p%%%)
+set rulerformat=%50(%-30(%f%)\ %o,%l,%c%V\ %p%%%)
 
 " Show the mode we are in
 set showmode
@@ -64,6 +64,9 @@ set nojoinspaces                " insert only 1 space following a '.' when joini
 set history=50                  " Keep command history
 set backup                      " Keep backup of files
 set backupdir=$HOME/tmp/vimbkup " where to keep 'em
+" for use with cbackup.vim
+let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
+let g:backup_purge=20
 " let g:vlh_repository_dir = expand("$HOME/tmp/vimbkup/vlh_repo")
 " we do not use vlh script any more ..
 let loaded_vlh = 1
