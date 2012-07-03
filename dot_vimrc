@@ -61,7 +61,7 @@ set hlsearch                    " Highlight all matches of the last search patte
 set ignorecase                  " Ignore case in search pattern
 set showmatch                   " show matching parens/brackets
 set nojoinspaces                " insert only 1 space following a '.' when joining lines
-set history=50                  " Keep command history
+set history=100                 " Keep command history
 set backup                      " Keep backup of files
 set backupdir=$HOME/tmp/vimbkup " where to keep 'em
 " for use with cbackup.vim
@@ -77,10 +77,14 @@ set warn                        " Give a warning message when a shell command
                                 " is used while the buffer has been changed.
 set modeline                    " Set the 'modeline' if they have been defined
                                 " in the file that you are editing
+set title                       " Set the terminal title
+set scrolloff=5                 " at what offset do we start scrolling
 set pastetoggle=<F2>            " Mapping to take care of unsetting ai and
                                 " smartindent when pasting text.
 
 " Completion options
+" - in command-mode, while doing completion, show all matches
+set wildmode=list:longest
 " - set up omni-completion
 setlocal omnifunc=syntaxcomplete#Complete
 " - tell supertab plugin to be context sensitive for completion
@@ -100,8 +104,11 @@ map <Up>   gk
 " Cycle between windows and make active window full size
 map <C-M> <C-W>w<C-W>_
 
+" Toggle line numbers
+map \n :set number!<CR>
+
 " Source man plugin (I need it all the time, even when mailing mom)
-runtime! ftplugin/man.vim
+" runtime! ftplugin/man.vim
 
 " let loaded_netrwPlugin = 1    " Don't load the netrw plugin
 
