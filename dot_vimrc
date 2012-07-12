@@ -8,6 +8,7 @@
 " - use ":help statusline" to understand and modify rulerformat and statusline
 " - be sure you change the 'backupdir' and 'dictionary' to suit your preference
 " - keybinding you might want to change: pastetoggle, cycle between windows,
+"   toggle line numbers
 
 " Use Vim defaults (much better!)
 set nocompatible
@@ -44,6 +45,11 @@ set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
 "Show (partial) command in status line.
 set showcmd
 
+" A lot of plugins assume bash like shell
+if $SHELL =~ 'bin/fish'
+    set shell=/bin/sh
+endif
+
 "Terminal for 80 char ? so vim can play till 79 char.
 set textwidth=79
 set wrap                        " wrap text at textwidth
@@ -64,13 +70,12 @@ set nojoinspaces                " insert only 1 space following a '.' when joini
 set history=100                 " Keep command history
 set backup                      " Keep backup of files
 set backupdir=$HOME/tmp/vimbkup " where to keep 'em
-" for use with cbackup.vim
-let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
-let g:backup_purge=20
-" let g:vlh_repository_dir = expand("$HOME/tmp/vimbkup/vlh_repo")
-" we do not use vlh script any more ..
-let loaded_vlh = 1
+    " for use with cbackup.vim
+    let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
+    let g:backup_purge=20
+
 set dictionary+=/usr/share/dict/words " For completion
+set thesaurus+=$HOME/.mthesaur.txt
 set spell spelllang=en_us       " We no how to spelle
 set infercase                   " infer case from the case of the pattern being typed
 set warn                        " Give a warning message when a shell command
@@ -85,15 +90,15 @@ set pastetoggle=<F2>            " Mapping to take care of unsetting ai and
 " Completion options
 " - in command-mode, while doing completion, show all matches
 set wildmode=list:longest
-" - set up omni-completion
-setlocal omnifunc=syntaxcomplete#Complete
+
+" - show menu, longest match and preview
+set completeopt=menu,longest,preview
+
 " - tell supertab plugin to be context sensitive for completion
 let g:SuperTabDefaultCompletionType = "context"
+
 " - tell supertab plugin to only complete when there isn't a leading whitespace
 let g:SuperTabLeadingSpaceCompletion = 0
-" - the python omni-completion shows the doc string in a `preview` buffer,
-"   which is distracting for us. Turn it off
-set completeopt=menu,longest
 
 " Make the up and down movements move by "display" lines:
 map j      gj
@@ -108,9 +113,7 @@ map <C-M> <C-W>w<C-W>_
 map \n :set number!<CR>
 
 " Source man plugin (I need it all the time, even when mailing mom)
-" runtime! ftplugin/man.vim
-
-" let loaded_netrwPlugin = 1    " Don't load the netrw plugin
+runtime! ftplugin/man.vim
 
 " Stuff that I am picky about:
 " - don't automatically ^fix^ leading/trailing space errors in C files ...
@@ -119,6 +122,7 @@ let c_space_errors = 1
 "   ...but hurt my eyes by highlighting them
 highlight WhitespaceEOL ctermbg=red guibg=red
 match WhitespaceEOL /\s\+$/
+
 
 " autocommands
 if has("autocmd")
@@ -139,8 +143,12 @@ if has("autocmd")
         endfun
 
     " python files
-    " Read the vim syntax file for python to know what this does
-    autocmd BufNewFile,BufRead *.py let python_highlight_all = 1
+    " - highlight numbers, builtins, standard exceptions and space errors
+    " - turn off omni-completion `preview` of the doc string, cos it is
+    "   distracts us
+    autocmd BufNewFile,BufRead *.py
+                \ let python_highlight_all = 1 |
+                \ set completeopt=menu,longest
 
     " html/templates -- turn off textwidth
     autocmd BufNewFile,BufRead *.html,*.pt set textwidth=0
@@ -148,9 +156,21 @@ if has("autocmd")
     " for json files use javascript highlighting
     autocmd BufNewFile,BufRead *.json set ft=javascript
 
+    " nginx files
+    autocmd BufNewFile,BufRead *nginx* set ft=nginx
+
+    " fish files
+    autocmd BufNewFile,BufRead *.fish set ft=fish
+
     " taglist plugin - close when taglist is the only open window
     let Tlist_Exit_OnlyWindow = 1
 
+    " - set up omni-completion if a specific plugin doesn't already exit for
+    "   the filetype
+    autocmd Filetype *
+                \ if &omnifunc == "" |
+                \       setlocal omnifunc=syntaxcomplete#Complete |
+                \ endif
 endif
 
 " CVS plugin defaults
