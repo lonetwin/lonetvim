@@ -13,6 +13,9 @@
 " Use Vim defaults (much better!)
 set nocompatible
 
+" Call pathogen
+call pathogen#infect()
+
 "Turn syntax highlighting on.
 syntax on
 
@@ -21,16 +24,18 @@ filetype on
 filetype plugin on
 filetype indent on
 
+"Makes syntax highlighting lighter.
+set background=dark
+
 "Set the colorscheme - my terminal is usually dark, but i like my gvim
 "backgroud white, so i use different colorschemes for vim Vs gvim
 if has("gui_running")
    colorscheme desert
 else
-   colorscheme ron
+   " colorscheme ron
+   colorscheme busierbee
+   "map <C-s> :colorscheme random<CR>
 endif
-
-"Makes syntax highlighting lighter.
-set background=dark
 
 "Show the position of the cursor.
 set ruler
@@ -54,7 +59,6 @@ endif
 set textwidth=79
 set wrap                        " wrap text at textwidth
 set autoindent                  " automatically indent
-set smartindent                 " Do it 'smartly'. ":help si" for more info
 set backspace=eol,start,indent  " Backspace over eol, start of line and indents
 set tabstop=8                   " Tabs (ASCII 0x09) are always 8 characters !!!
 set softtabstop=4 shiftwidth=4  " default indentation level
@@ -91,11 +95,20 @@ set pastetoggle=<F2>            " Mapping to take care of unsetting ai and
 " - in command-mode, while doing completion, show all matches
 set wildmode=list:longest
 
-" - show menu, longest match and preview
-set completeopt=menu,longest,preview
+" - make the contents of the yank/copy/deleted text available to the X
+"   clipboard (NOTE, you need to have +xterm_clipboard support
+"   (check :version)). On fedora this comes in if you use `vimx`
+set clipboard=unnamed
 
+" - tell jedi to autocomplete using <tab>
+"let g:jedi#autocompletion_command = "<tab>"
+" let g:jedi#show_call_signatures = 0
+" let g:jedi#auto_vim_configuration = 0
+" let g:jedi#popup_on_dot = 0
 " - tell supertab plugin to be context sensitive for completion
 let g:SuperTabDefaultCompletionType = "context"
+let g:SuperTabCompletionContexts = ['s:ContextText', 's:ContextDiscover']
+let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
 
 " - tell supertab plugin to only complete when there isn't a leading whitespace
 let g:SuperTabLeadingSpaceCompletion = 0
@@ -110,7 +123,7 @@ map <Up>   gk
 map <C-M> <C-W>w<C-W>_
 
 " Toggle line numbers
-map \n :set number!<CR>
+map <Leader>n :set number!<CR>
 
 " Source man plugin (I need it all the time, even when mailing mom)
 runtime! ftplugin/man.vim
@@ -133,6 +146,9 @@ if has("autocmd")
     \   exe "normal! g'\"" |
     \ endif
 
+    " let terminal resize scale the internal windows
+    autocmd VimResized * :wincmd =
+
     " spec files
     autocmd BufNewFile,BufRead *.spec
     \ let packager = "Steven Fernandez <lonetwin@fedoraproject.org>"
@@ -142,30 +158,40 @@ if has("autocmd")
             exe "g/Name:/s/Name:/Name:\t\t" . expand("%:t:r")
         endfun
 
+    " nginx files
+    autocmd BufNewFile,BufRead *nginx* set ft=nginx
+
     " python files
     " - highlight numbers, builtins, standard exceptions and space errors
     " - turn off omni-completion `preview` of the doc string, cos it is
     "   distracts us
     autocmd BufNewFile,BufRead *.py
+                \ set ft=python |
                 \ let python_highlight_all = 1 |
                 \ set completeopt=menu,longest
 
     " html/templates -- turn off textwidth
-    autocmd BufNewFile,BufRead *.html,*.pt set textwidth=0
+    " autocmd BufNewFile,BufRead *.html,*.pt set textwidth=0
+    autocmd BufNewFile,BufRead *.html,*.pt
+        \ set textwidth=0 |
+        \ set ft=htmldjango
 
     " for json files use javascript highlighting
-    autocmd BufNewFile,BufRead *.json set ft=javascript
+    autocmd BufNewFile,BufRead *.json
+                \ set ft=javascript |
+                \ map <Leader>j :%!python -m json.tool<CR>
 
-    " nginx files
-    autocmd BufNewFile,BufRead *nginx* set ft=nginx
+    " treat .zcml as xml
+    autocmd BufNewFile,BufRead *.zcml set ft=xml
 
     " fish files
     autocmd BufNewFile,BufRead *.fish set ft=fish
 
     " taglist plugin - close when taglist is the only open window
     let Tlist_Exit_OnlyWindow = 1
+    let Tlist_Show_One_File = 1
 
-    " - set up omni-completion if a specific plugin doesn't already exit for
+    " - set up omni-completion if a specific plugin doesn't already exist for
     "   the filetype
     autocmd Filetype *
                 \ if &omnifunc == "" |
@@ -173,9 +199,67 @@ if has("autocmd")
                 \ endif
 endif
 
-" CVS plugin defaults
-augroup CVSCommand
-    au CVSCommand User CVSBufferCreated silent! nmap <unique> <buffer> q:bwipeout<cr>
-    let CVSCommandEdit = 'split'        " Split the buffer instead of replacing it
-    let CVSCommandDiffSplit = 'edit'    " ...but don't do it for diff's
-augroup END
+" Break bad habits
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
+
+" Spelling
+highlight clear SpellBad
+highlight SpellBad term=standout,underline cterm=underline
+highlight clear SpellCap
+highlight SpellCap term=underline cterm=underline
+highlight clear SpellRare
+highlight SpellRare term=underline cterm=underline
+highlight clear SpellLocal
+highlight SpellLocal term=underline cterm=underline
+
+" Custom command to write a copy of the currently opened file to a different
+" path on every write. This is useful, for instance, when you have sshfs
+" mounted paths from multiple systems and need to keep a copy of the same file
+" sync'd on all systems
+command -nargs=1 -complete=dir DuplicateAt autocmd BufWritePost * w! <args>%
+
+function ShowGitHubURL()
+    " Function to echo the github URL for the currently open file at the
+    " current line number. This is useful if for example, you want to quickly
+    " share the URL for the file you're working on via, email / IRC etc.
+    "
+    " This can also be easily extended to open the browser with the displayed
+    " URL using tips such as http://vim.wikia.com/wiki/VimTip306
+    "
+    " You may add a mapping like this to bind this function to a keystroke:
+    " map <Leader>gh :call ShowGitHubURL()<CR>
+    "
+    " XXX KNOWN ISSUE: file needs to be opened from the 'top' level of the
+    " source tree ie: '%' should expand to the filename under the root of the
+    " repositories source tree. I don't know (yet) how to fix this.
+    " Suggestions/Patches welcome.
+
+    let gh_base = 'github.com'
+    let gh_url = system("git remote -v show")
+    if strridx(gh_url, gh_base) == -1
+        echom "Not within a github repo or github origin not found"
+        return
+    endif
+
+    " Build the repo's github url
+    let remote = split(gh_url)[0]
+
+    let gh_url = split(gh_url, '@')[2]
+    let gh_url = split(gh_url)[0]
+    let gh_url = substitute(gh_url, ':', '/', '')
+    let gh_url = substitute(gh_url, '.git$', '', '')
+    let gh_url = 'https://'.gh_url
+
+    " Add the current branch
+    let branch = system("git remote show ".remote."| grep 'HEAD branch'")
+    let branch = split(branch)[-1]
+    let gh_url = gh_url."/blob/".branch
+
+    " Add the current filename and line number
+    let gh_url = gh_url . "/" . expand("%") . "#L" . line(".")
+
+    echom gh_url
+endfunction

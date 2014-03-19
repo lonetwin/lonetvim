@@ -5,6 +5,9 @@ lonetwin's vim files.
 
 %changelog
 ----------
+  * Wed Mar 19 2014 Steven Fernandez <steve@lonetwin.net>
+    - Complete reorg and started using pathogen
+
   * Mon Oct 11 2010 Steven Fernandez <lonetwin@fedoraproject.org>
     - No longer use vlh (commented it out for now, haven't removed it yet)
     - Make use of omni-completion.
