@@ -4,3 +4,9 @@
 [submodule "bundle/supertab"]
 	path = bundle/supertab
 	url = git://github.com/ervandew/supertab.git
+[submodule "bundle/vcscommand"]
+	path = bundle/vcscommand
+	url = git://repo.or.cz/vcscommand
+[submodule "bundle/vim-indent-object"]
+	path = bundle/vim-indent-object
+	url = git@github.com:michaeljsmith/vim-indent-object.git
