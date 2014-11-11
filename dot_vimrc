@@ -305,3 +305,8 @@ endfunction
 
 au VimLeavePre * call SaveSession()
 au VimEnter * call LoadSession()
+
+" Move visual block
+vnoremap J :m '>+1<CR>gv
+vnoremap K :m '<-2<CR>gv
+
