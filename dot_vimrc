@@ -32,8 +32,8 @@ set background=dark
 if has("gui_running")
    colorscheme desert
 else
-   " colorscheme ron
    colorscheme busierbee
+   "colorscheme random
    "map <C-s> :colorscheme random<CR>
 endif
 
@@ -41,14 +41,10 @@ endif
 set ruler
 set rulerformat=%50(%-30(%f%)\ %o,%l,%c%V\ %p%%%)
 
-" Show the mode we are in
-set showmode
-
 "Set a statusbar.
-set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
-
-"Show (partial) command in status line.
-set showcmd
+" set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
+set laststatus=2
+set noshowmode
 
 " A lot of plugins assume bash like shell
 if $SHELL =~ 'bin/fish'
@@ -58,7 +54,11 @@ endif
 "Terminal for 80 char ? so vim can play till 79 char.
 set textwidth=79
 set wrap                        " wrap text at textwidth
-set autoindent                  " automatically indent
+set cindent                     " automatically indent following cindent'ing
+                                " rules (better than autoindent or smartindent
+                                " but less flexible than indentexpr)
+set nostartofline               " Maintain cursor position when doing stuff
+                                " like gg, d or :copy .
 set backspace=eol,start,indent  " Backspace over eol, start of line and indents
 set tabstop=8                   " Tabs (ASCII 0x09) are always 8 characters !!!
 set softtabstop=4 shiftwidth=4  " default indentation level
@@ -79,6 +79,10 @@ set backupdir=$HOME/tmp/vimbkup " where to keep 'em
     " for use with cbackup.vim
     let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
     let g:backup_purge=20
+set undofile                    " Save undo's after file closes
+set undodir=$HOME/.vim/undo     " where to save undo histories
+set undolevels=1000             " How many undos
+set undoreload=10000            " number of lines to save for undo
 
 set dictionary+=/usr/share/dict/words " For completion
 set thesaurus+=$HOME/.mthesaur.txt
@@ -120,7 +124,10 @@ map <Up>   gk
 nmap <CR> <C-W>w<C-W>_
 
 " Toggle line numbers
-map <Leader>n :set number!<CR>
+map <Leader>n :set number! cursorline!<CR>
+
+" Toggle list
+map <Leader>l :set list!<CR>
 
 " Source man plugin (I need it all the time, even when mailing mom)
 runtime! ftplugin/man.vim
@@ -128,11 +135,6 @@ runtime! ftplugin/man.vim
 " Stuff that I am picky about:
 " - don't automatically ^fix^ leading/trailing space errors in C files ...
 let c_space_errors = 1
-
-"   ...but hurt my eyes by highlighting them
-highlight WhitespaceEOL ctermbg=red guibg=red
-match WhitespaceEOL /\s\+$/
-
 
 " autocommands
 if has("autocmd")
@@ -166,6 +168,9 @@ if has("autocmd")
                 \ set ft=python |
                 \ let python_highlight_all = 1 |
                 \ set completeopt=menu,longest
+
+    autocmd BufNewFile *.py
+                \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
 
     " html/templates -- turn off textwidth
     " autocmd BufNewFile,BufRead *.html,*.pt set textwidth=0
@@ -203,25 +208,20 @@ if has("autocmd")
 endif
 
 " Break bad habits
-noremap <Up> <NOP>
-noremap <Down> <NOP>
-noremap <Left> <NOP>
-noremap <Right> <NOP>
+" noremap <Up> <NOP>
+" noremap <Down> <NOP>
+" noremap <Left> <NOP>
+" noremap <Right> <NOP>
 
-" Spelling
-highlight clear SpellBad
-highlight SpellBad term=standout,underline cterm=underline
-highlight clear SpellCap
-highlight SpellCap term=underline cterm=underline
-highlight clear SpellRare
-highlight SpellRare term=underline cterm=underline
-highlight clear SpellLocal
-highlight SpellLocal term=underline cterm=underline
+
 
 " VimWiki options
 let default_wiki = {}
 let default_wiki.path = '~/Dropbox/Dox/vimwiki/'
 let g:vimwiki_list = [default_wiki]
+
+"vim-markdown options
+let g:vim_markdown_folding_disabled=1
 
 " Custom command to write a copy of the currently opened file to a different
 " path on every write. This is useful, for instance, when you have sshfs
@@ -310,3 +310,20 @@ au VimEnter * call LoadSession()
 vnoremap J :m '>+1<CR>gv
 vnoremap K :m '<-2<CR>gv
 
+" view and paste from register
+" http://vimrcfu.com/snippet/116
+function! Reg()
+    reg
+    echo "Register: "
+    let char = nr2char(getchar())
+    if char != "\<Esc>"
+        execute "normal! \"".char."p"
+    endif
+    redraw
+endfunction
+command! -nargs=0 Reg call Reg()
+
+" Keep search matches in the middle of the screen
+" http://vimrcfu.com/snippet/175
+nnoremap n nzz
+nnoremap N Nzz

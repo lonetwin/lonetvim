@@ -1,1 +1,0 @@
-../../src/python-syntax/syntax/python.vim
