@@ -10,9 +10,15 @@
 [submodule "bundle/vim-indent-object"]
 	path = bundle/vim-indent-object
 	url = git@github.com:michaeljsmith/vim-indent-object.git
-[submodule "bundle/vimwiki"]
-	path = bundle/vimwiki
-	url = git@github.com:vimwiki/vimwiki.git
 [submodule "bundle/vim-flake8"]
 	path = bundle/vim-flake8
 	url = git@github.com:nvie/vim-flake8.git
+[submodule "bundle/lightline"]
+	path = bundle/lightline.vim
+	url = git@github.com:itchyny/lightline.vim
+[submodule "bundle/python-syntax"]
+	path = bundle/python-syntax
+	url = git@github.com:hdima/python-syntax
+[submodule "bundle/vim-markdown"]
+	path = bundle/vim-markdown
+	url = git@github.com:plasticboy/vim-markdown
