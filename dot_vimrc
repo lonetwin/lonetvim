@@ -33,7 +33,6 @@ if has("gui_running")
    colorscheme desert
 else
    colorscheme busierbee
-   "colorscheme random
    "map <C-s> :colorscheme random<CR>
 endif
 
@@ -42,7 +41,6 @@ set ruler
 set rulerformat=%50(%-30(%f%)\ %o,%l,%c%V\ %p%%%)
 
 "Set a statusbar.
-" set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
 set laststatus=2
 set noshowmode
 
@@ -51,8 +49,7 @@ if $SHELL =~ 'bin/fish'
     set shell=/bin/sh
 endif
 
-"Terminal for 80 char ? so vim can play till 79 char.
-set textwidth=79
+set textwidth=120
 set wrap                        " wrap text at textwidth
 set cindent                     " automatically indent following cindent'ing
                                 " rules (better than autoindent or smartindent
@@ -205,20 +202,18 @@ if has("autocmd")
     " next buffer
     autocmd BufReadPost quickfix nunmap <CR>
 
+    " Office suff -- start
+    autocmd BufNewFile,BufRead COMMIT_MSG set textwidth=72
+    autocmd BufNewFile,BufRead *.rst set textwidth=80
+    " Office suff -- end
+
 endif
 
 " Break bad habits
-" noremap <Up> <NOP>
-" noremap <Down> <NOP>
-" noremap <Left> <NOP>
-" noremap <Right> <NOP>
-
-
-
-" VimWiki options
-let default_wiki = {}
-let default_wiki.path = '~/Dropbox/Dox/vimwiki/'
-let g:vimwiki_list = [default_wiki]
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
 
 "vim-markdown options
 let g:vim_markdown_folding_disabled=1
