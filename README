@@ -5,6 +5,10 @@ lonetwin's vim files.
 
 %changelog
 ----------
+  * Thu Feb 18 2016 Steven Fernandez <steve@lonetwin.net>
+    - New plugins, updates etc. Also dot_vimrc -> vimrc because that is configured as second user vimrc in the vimrc
+    lookup path.
+
   * Wed Mar 19 2014 Steven Fernandez <steve@lonetwin.net>
     - Complete reorg and started using pathogen
 
