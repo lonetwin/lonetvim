@@ -203,17 +203,17 @@ if has("autocmd")
     autocmd BufReadPost quickfix nunmap <CR>
 
     " Office suff -- start
-    autocmd BufNewFile,BufRead COMMIT_MSG set textwidth=72
+    autocmd BufNewFile,BufRead COMMIT_EDITMSG set textwidth=72
     autocmd BufNewFile,BufRead *.rst set textwidth=80
     " Office suff -- end
 
 endif
 
 " Break bad habits
-noremap <Up> <NOP>
-noremap <Down> <NOP>
-noremap <Left> <NOP>
-noremap <Right> <NOP>
+" noremap <Up> <NOP>
+" noremap <Down> <NOP>
+" noremap <Left> <NOP>
+" noremap <Right> <NOP>
 
 "vim-markdown options
 let g:vim_markdown_folding_disabled=1
@@ -322,3 +322,8 @@ command! -nargs=0 Reg call Reg()
 " http://vimrcfu.com/snippet/175
 nnoremap n nzz
 nnoremap N Nzz
+
+" See diff between current buffer and the file it was loaded from (*not* across writes !)
+" (tip from :help DiffOrig )
+command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+	 	\ | diffthis | wincmd p | diffthis
