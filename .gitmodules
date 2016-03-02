@@ -22,3 +22,6 @@
 [submodule "bundle/vim-markdown"]
 	path = bundle/vim-markdown
 	url = git@github.com:plasticboy/vim-markdown
+[submodule "bundle/vim-pep8-text-width"]
+	path = bundle/vim-pep8-text-width
+	url = git@github.com:jimf/vim-pep8-text-width.git

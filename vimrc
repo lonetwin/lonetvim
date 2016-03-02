@@ -164,7 +164,9 @@ if has("autocmd")
     autocmd BufNewFile,BufRead *.py
                 \ set ft=python |
                 \ let python_highlight_all = 1 |
-                \ set completeopt=menu,longest
+                \ set completeopt=menu,longest |
+                \ let g:pep8_text_width = 119  |
+                \ let g:pep8_comment_text_width = 72
 
     autocmd BufNewFile *.py
                 \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
