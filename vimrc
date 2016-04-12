@@ -49,7 +49,7 @@ if $SHELL =~ 'bin/fish'
     set shell=/bin/sh
 endif
 
-set textwidth=120
+set textwidth=80
 set wrap                        " wrap text at textwidth
 set cindent                     " automatically indent following cindent'ing
                                 " rules (better than autoindent or smartindent
