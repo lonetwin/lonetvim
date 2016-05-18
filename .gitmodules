@@ -26,5 +26,5 @@
 	path = bundle/vim-pep8-text-width
 	url = git@github.com:jimf/vim-pep8-text-width.git
 [submodule "plugin/vim-rsi"]
-	path = plugin/vim-rsi
+	path = bundle/vim-rsi
 	url = git://github.com/tpope/vim-rsi.git
