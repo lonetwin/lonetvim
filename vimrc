@@ -101,7 +101,7 @@ set wildmode=list:longest
 " - make the contents of the yank/copy/deleted text available to the X
 "   clipboard (NOTE, you need to have +xterm_clipboard support
 "   (check :version)). On fedora this comes in if you use `vimx`
-set clipboard=unnamed
+set clipboard=unnamedplus,unnamed
 
 " - tell supertab plugin to be context sensitive for completion
 let g:SuperTabDefaultCompletionType = "context"
