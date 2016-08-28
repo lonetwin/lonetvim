@@ -14,6 +14,7 @@
 set nocompatible
 
 " Call pathogen
+let g:pathogen_disabled = ['python-syntax']
 call pathogen#infect()
 
 "Turn syntax highlighting on.
@@ -144,6 +145,11 @@ if has("autocmd")
 
     " let terminal resize scale the internal windows
     autocmd VimResized * :wincmd =
+
+    " make files
+    autocmd BufNewFile,BufRead Makefile*
+        \ set noexpandtab |
+        \ softtabstop=0
 
     " spec files
     autocmd BufNewFile,BufRead *.spec
