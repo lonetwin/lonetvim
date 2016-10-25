@@ -1,15 +1,6 @@
 " Steve's vimrc (Modified from the original Mandrake vimrc)
-" Steve <lonetwin@yahoo.com>
+" Steve <steve@lonetwin.net>
 "
-" Notes:
-" - the 'set spell' below will only work on vim 7.0 onwards, when spell
-"   checking was built-in into vim. If you are using an earlier version of vim
-"   install the vimspell.vim plugin
-" - use ":help statusline" to understand and modify rulerformat and statusline
-" - be sure you change the 'backupdir' and 'dictionary' to suit your preference
-" - keybinding you might want to change: pastetoggle, cycle between windows,
-"   toggle line numbers
-
 " Use Vim defaults (much better!)
 set nocompatible
 
@@ -20,10 +11,8 @@ call pathogen#infect()
 "Turn syntax highlighting on.
 syntax on
 
-" Turn on filetype plugin
-filetype on
-filetype plugin on
-filetype indent on
+" Turn on filetype detection, plugin loading and indent
+filetype plugin indent on
 
 "Makes syntax highlighting lighter.
 set background=dark
@@ -36,10 +25,6 @@ else
    colorscheme busierbee
    "map <C-s> :colorscheme random<CR>
 endif
-
-"Show the position of the cursor.
-set ruler
-set rulerformat=%50(%-30(%f%)\ %o,%l,%c%V\ %p%%%)
 
 "Set a statusbar.
 set laststatus=2
@@ -83,7 +68,7 @@ set undolevels=1000             " How many undos
 set undoreload=10000            " number of lines to save for undo
 
 set dictionary+=/usr/share/dict/words " For completion
-set thesaurus+=$HOME/.mthesaur.txt
+set thesaurus+=./mthesaur.txt
 set spell spelllang=en_us       " We no how to spelle
 set infercase                   " infer case from the case of the pattern being typed
 set warn                        " Give a warning message when a shell command
@@ -104,11 +89,14 @@ set wildmode=list:longest
 "   (check :version)). On fedora this comes in if you use `vimx`
 set clipboard=unnamedplus,unnamed
 
+" Delete comment character when joining commented lines
+set formatoptions+=j
+
 " - tell supertab plugin to be context sensitive for completion
 let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabCompletionContexts = ['s:ContextText', 's:ContextDiscover']
-let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
-
+" - tell supertab plugin to complete the longest common completion in case of
+"   multiple matches
+let g:SuperTabLongestEnhanced = 1
 " - tell supertab plugin to only complete when there isn't a leading whitespace
 let g:SuperTabLeadingSpaceCompletion = 0
 
@@ -130,6 +118,9 @@ map <Leader>l :set list!<CR>
 " Source man plugin (I need it all the time, even when mailing mom)
 runtime! ftplugin/man.vim
 
+" Load matchit plugin packaged with the default vim
+packadd matchit
+
 " Stuff that I am picky about:
 " - don't automatically ^fix^ leading/trailing space errors in C files ...
 let c_space_errors = 1
@@ -149,7 +140,7 @@ if has("autocmd")
     " make files
     autocmd BufNewFile,BufRead Makefile*
         \ set noexpandtab |
-        \ softtabstop=0
+        \ set softtabstop=0
 
     " spec files
     autocmd BufNewFile,BufRead *.spec
@@ -178,7 +169,6 @@ if has("autocmd")
                 \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
 
     " html/templates -- turn off textwidth
-    " autocmd BufNewFile,BufRead *.html,*.pt set textwidth=0
     autocmd BufNewFile,BufRead *.html,*.pt
         \ set textwidth=0 |
         \ set ft=htmldjango
@@ -231,49 +221,6 @@ let g:vim_markdown_folding_disabled=1
 " mounted paths from multiple systems and need to keep a copy of the same file
 " sync'd on all systems
 command -nargs=1 -complete=dir DuplicateAt autocmd BufWritePost * w! <args>%
-
-function ShowGitHubURL()
-    " Function to echo the github URL for the currently open file at the
-    " current line number. This is useful if for example, you want to quickly
-    " share the URL for the file you're working on via, email / IRC etc.
-    "
-    " This can also be easily extended to open the browser with the displayed
-    " URL using tips such as http://vim.wikia.com/wiki/VimTip306
-    "
-    " You may add a mapping like this to bind this function to a keystroke:
-    " map <Leader>gh :call ShowGitHubURL()<CR>
-    "
-    " XXX KNOWN ISSUE: file needs to be opened from the 'top' level of the
-    " source tree ie: '%' should expand to the filename under the root of the
-    " repositories source tree. I don't know (yet) how to fix this.
-    " Suggestions/Patches welcome.
-
-    let gh_base = 'github.com'
-    let gh_url = system("git remote -v show")
-    if strridx(gh_url, gh_base) == -1
-        echom "Not within a github repo or github origin not found"
-        return
-    endif
-
-    " Build the repo's github url
-    let remote = split(gh_url)[0]
-
-    let gh_url = split(gh_url, '@')[2]
-    let gh_url = split(gh_url)[0]
-    let gh_url = substitute(gh_url, ':', '/', '')
-    let gh_url = substitute(gh_url, '.git$', '', '')
-    let gh_url = 'https://'.gh_url
-
-    " Add the current branch
-    let branch = system("git remote show ".remote."| grep 'HEAD branch'")
-    let branch = split(branch)[-1]
-    let gh_url = gh_url."/blob/".branch
-
-    " Add the current filename and line number
-    let gh_url = gh_url . "/" . expand("%") . "#L" . line(".")
-
-    echom gh_url
-endfunction
 
 " Session Management
 function SaveSession()
@@ -335,3 +282,8 @@ nnoremap N Nzz
 " (tip from :help DiffOrig )
 command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
 	 	\ | diffthis | wincmd p | diffthis
+
+" Use <C-L> to clear the highlighting of :set hlsearch.
+if maparg('<C-L>', 'n') ==# ''
+    nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+endif
