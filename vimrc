@@ -79,6 +79,7 @@ set title                       " Set the terminal title
 set scrolloff=5                 " at what offset do we start scrolling
 set pastetoggle=<F2>            " Mapping to take care of unsetting ai and
                                 " smartindent when pasting text.
+set wildignore+=*.swp,*.pyc,*.o " skip over these when doing filename completion
 
 " Completion options
 " - in command-mode, while doing completion, show all matches
@@ -99,6 +100,10 @@ let g:SuperTabDefaultCompletionType = "context"
 let g:SuperTabLongestEnhanced = 1
 " - tell supertab plugin to only complete when there isn't a leading whitespace
 let g:SuperTabLeadingSpaceCompletion = 0
+
+" taglist plugin - close when taglist is the only open window
+let g:Tlist_Exit_OnlyWindow = 1
+let g:Tlist_Show_One_File = 1
 
 " Make the up and down movements move by "display" lines:
 map j      gj
@@ -176,17 +181,21 @@ if has("autocmd")
     " for json files use javascript highlighting
     autocmd BufNewFile,BufRead *.json
                 \ set ft=javascript |
+                \ set formatprg=python\ -m\ json.tool |
                 \ map <Leader>j :%!python -m json.tool<CR>
 
     " treat .zcml as xml
     autocmd BufNewFile,BufRead *.zcml set ft=xml
 
+    autocmd BufNewFile,BufRead *.xml
+        \ set formatprg=xmllint\ --format\ -
+
     " fish files
     autocmd BufNewFile,BufRead *.fish set ft=fish
 
-    " taglist plugin - close when taglist is the only open window
-    let Tlist_Exit_OnlyWindow = 1
-    let Tlist_Show_One_File = 1
+    "vim-markdown options
+    autocmd Filetype *.md
+        \ let g:vim_markdown_folding_disabled=1
 
     " - set up omni-completion if a specific plugin doesn't already exist for
     "   the filetype
@@ -213,8 +222,6 @@ endif
 " noremap <Left> <NOP>
 " noremap <Right> <NOP>
 
-"vim-markdown options
-let g:vim_markdown_folding_disabled=1
 
 " Custom command to write a copy of the currently opened file to a different
 " path on every write. This is useful, for instance, when you have sshfs
