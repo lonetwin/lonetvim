@@ -5,7 +5,7 @@
 set nocompatible
 
 " Call pathogen
-let g:pathogen_disabled = ['python-syntax']
+let g:pathogen_disabled = ['vcscommand']
 call pathogen#infect()
 
 "Turn syntax highlighting on.
@@ -174,7 +174,7 @@ if has("autocmd")
                 \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
 
     " html/templates -- turn off textwidth
-    autocmd BufNewFile,BufRead *.html,*.pt
+    autocmd BufNewFile,BufRead *.pt
         \ set textwidth=0 |
         \ set ft=htmldjango
 
@@ -293,4 +293,27 @@ command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
 " Use <C-L> to clear the highlighting of :set hlsearch.
 if maparg('<C-L>', 'n') ==# ''
     nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+endif
+
+"lightline config
+let g:lightline = {
+    \ 'active': {
+    \   'left': [['mode', 'paste'],
+    \            ['fugitive', 'virtualenv', 'readonly', 'filename', 'modified']]
+    \   },
+    \   'component_function': {
+    \       'fugitive': 'LightlineFugitive',
+    \       'virtualenv': 'virtualenv#statusline'
+    \   },
+    \ }
+
+function! LightlineFugitive()
+    return exists('*fugitive#head') ? (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
+endfunction
+
+if &term =~ '256color'
+  " disable Background Color Erase (BCE) so that color schemes
+  " render properly when inside 256-color tmux and GNU screen.
+  " see also http://snk.tuxfamily.org/log/vim-256color-bce.html
+  set t_ut=
 endif

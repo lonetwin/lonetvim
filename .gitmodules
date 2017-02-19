@@ -28,3 +28,18 @@
 [submodule "bundle/vim-rsi"]
 	path = bundle/vim-rsi
 	url = git://github.com/tpope/vim-rsi.git
+[submodule "bundle/auto-pairs"]
+	path = bundle/auto-pairs
+	url = git@github.com:jiangmiao/auto-pairs.git
+[submodule "bundle/vim-fugitive"]
+	path = bundle/vim-fugitive
+	url = git@github.com:tpope/vim-fugitive.git
+[submodule "bundle/vim-git"]
+	path = bundle/vim-git
+	url = git@github.com:tpope/vim-git.git
+[submodule "bundle/vim-virtualenv"]
+	path = bundle/vim-virtualenv
+	url = git@github.com:jmcantrell/vim-virtualenv.git
+[submodule "bundle/xmledit"]
+	path = bundle/xmledit
+	url = git@github.com:sukima/xmledit.git
