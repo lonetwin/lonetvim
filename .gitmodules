@@ -18,7 +18,7 @@
 	url = git@github.com:itchyny/lightline.vim
 [submodule "bundle/python-syntax"]
 	path = bundle/python-syntax
-	url = git@github.com:hdima/python-syntax
+	url = git@github.com:vim-python/python-syntax.git
 [submodule "bundle/vim-markdown"]
 	path = bundle/vim-markdown
 	url = git@github.com:plasticboy/vim-markdown
