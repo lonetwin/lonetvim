@@ -1,11 +1,12 @@
-" Steve's vimrc (Modified from the original Mandrake vimrc)
-" Steve <steve@lonetwin.net>
-"
-" Use Vim defaults (much better!)
-set nocompatible
+" vimrc -- lovingly maintained since 2009 by lonetwin <steve@lonetwin.net>
+" vim:textwidth=100
+
+
+" Initialization stuff
+" ====================
 
 " Call pathogen
-let g:pathogen_disabled = ['vcscommand']
+let g:pathogen_disabled = ['vcscommand', 'vim-virtualenv']
 call pathogen#infect()
 
 "Turn syntax highlighting on.
@@ -14,96 +15,88 @@ syntax on
 " Turn on filetype detection, plugin loading and indent
 filetype plugin indent on
 
-"Makes syntax highlighting lighter.
-set background=dark
 
-"Set the colorscheme - my terminal is usually dark, but i like my gvim
-"backgroud white, so i use different colorschemes for vim Vs gvim
-if has("gui_running")
-   colorscheme desert
-else
-   colorscheme busierbee
-   "map <C-s> :colorscheme random<CR>
-endif
+" Customization options
+" =====================
 
-"Set a statusbar.
-set laststatus=2
-set noshowmode
+" visual options
+set background=dark             " Makes syntax highlighting lighter.
+exe has('gui_running') ? 'colorscheme desert' : 'colorscheme busierbee'
+set laststatus=2                " Always show a statusbar.
+set noshowmode                  " Hide the line showing the mode since that's part of our statusbar
+set modeline                    " Respect the file's 'modeline' if it has been defined
+set title                       " Set the terminal title
+set scrolloff=5                 " The offset at which we start scrolling
+set warn                        " Give a warning message when a shell command is used while the
+                                " buffer has been changed.
+if &term =~ '256color'          " Disable Background Color Erase (BCE) so that color schemes render
+    set t_ut=                   " properly when inside 256-color tmux and GNU screen. see also
+endif                           " http://snk.tuxfamily.org/log/vim-256color-bce.html
 
-" A lot of plugins assume bash like shell
-if $SHELL =~ 'bin/fish'
-    set shell=/bin/sh
-endif
+" editing behavior
+set textwidth=80                  " Set a default textwidth
+set wrap                          " wrap text at textwidth
+set backspace=eol,start,indent    " Backspace over eol, start of line and indents
+set nostartofline                 " Don't move cursor to first non-blank position when jumping with
+                                  " commands like gg
+set cindent                       " automatically indent following cindent'ing rules (better than
+                                  " autoindent or smartindent but less flexible than indentexpr)
+set tabstop=8                     " Tabs (ASCII 0x09) are always 8 characters !!!
+set expandtab                     " Use spaces instead of tabs for indentation
+set smarttab                      " ...but do it smartly. ":help st" for more info
+set preserveindent                " ...however, don't mess with existing indents
+set softtabstop=4 shiftwidth=4    " ...and use 4 spaces at at time to fill in tabbed indent levels
+set selection=exclusive           " In visual mode, do not select character under cursor
+set showmatch                     " Show matching parens/brackets
+set nojoinspaces                  " When joining lines insert only 1 space after a '.' or '?' or '!'
+set formatoptions+=j              " Delete comment character when joining commented lines
+set pastetoggle=<F2>              " Mapping to take care of disabling ai and si when pasting text.
+set clipboard=unnamedplus,unnamed " Make the contents of the yank/copy/deleted text available to the
+                                  " X clipboard
 
-set textwidth=80
-set wrap                        " wrap text at textwidth
-set cindent                     " automatically indent following cindent'ing
-                                " rules (better than autoindent or smartindent
-                                " but less flexible than indentexpr)
-set nostartofline               " Maintain cursor position when doing stuff
-                                " like gg, d or :copy .
-set backspace=eol,start,indent  " Backspace over eol, start of line and indents
-set tabstop=8                   " Tabs (ASCII 0x09) are always 8 characters !!!
-set softtabstop=4 shiftwidth=4  " default indentation level
-set expandtab                   " use spaces instead of tabs for indentation
-set smarttab                    " ...but do it smartly. ":help st" for more info
-set preserveindent              " ...however, don't mess with existing indents
-set selection=exclusive         " In visual mode, do not select character under cursor
+" search behavior
 set incsearch                   " Show the matches as we type them out
 set hlsearch                    " Highlight all matches of the last search pattern
 set ignorecase                  " Ignore case in search pattern
-set showmatch                   " show matching parens/brackets
-set nojoinspaces                " insert only 1 space following a '.' when joining lines
-set history=100                 " Keep command history
-set autowrite                   " Automatically save changes whenever moving
-                                " out of the buffer temporarily
-set backup                      " Keep backup of files
-set backupdir=$HOME/tmp/vimbkup " where to keep 'em
-    " for use with cbackup.vim
-    let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
-    let g:backup_purge=20
-set undofile                    " Save undo's after file closes
-set undodir=$HOME/.vim/undo     " where to save undo histories
-set undolevels=1000             " How many undos
-set undoreload=10000            " number of lines to save for undo
 
-set dictionary+=/usr/share/dict/words " For completion
-set thesaurus+=./mthesaur.txt
-set spell spelllang=en_us       " We no how to spelle
-set infercase                   " infer case from the case of the pattern being typed
-set warn                        " Give a warning message when a shell command
-                                " is used while the buffer has been changed.
-set modeline                    " Set the 'modeline' if they have been defined
-                                " in the file that you are editing
-set title                       " Set the terminal title
-set scrolloff=5                 " at what offset do we start scrolling
-set pastetoggle=<F2>            " Mapping to take care of unsetting ai and
-                                " smartindent when pasting text.
-set wildignore+=*.swp,*.pyc,*.o " skip over these when doing filename completion
+" history and backup
+set history=100                 " Keep command history
+set autowrite                   " Automatically save changes whenever moving out of the buffer
+                                " temporarily
+set backup                      " Keep backup of files
+set backupdir=$HOME/tmp/vimbkup " ...here's where to keep 'em
+set undofile                    " Save undo's after file closes
+set undodir=$HOME/.vim/undo     " ...here's where to save undo histories
+set undolevels=1000             " ...here's how many undos to save
+set undoreload=10000            " ...here's the number of lines to save for undo
 
 " Completion options
-" - in command-mode, while doing completion, show all matches
-set wildmode=list:longest
+set spell spelllang=en_us                " We no how to spelle (highlight and CTRL-X_S completion)
+set dictionary+=/usr/share/dict/words    " Add a dictionary (CTRL-X_CTRL_D completion)
+set thesaurus+=./mthesaur.txt            " Add a thesaurus (CTRL-X_CTRL_T completion)
+set wildignore+=*.swp,*.pyc,*.o          " In command-mode, skip over these when completing paths
+set wildmode=list:longest                " In command-mode, show list of matches, and complete until
+                                         " the longest common prefix
+set completeopt=menuone,longest,noselect " In insert-mode, always show a menu, complete until the
+                                         " longest common prefix and don't select any matches
+set infercase                            " Infer case for completion. Needed because we've set
+                                         " ignorecase for searches
 
-" - make the contents of the yank/copy/deleted text available to the X
-"   clipboard (NOTE, you need to have +xterm_clipboard support
-"   (check :version)). On fedora this comes in if you use `vimx`
-set clipboard=unnamedplus,unnamed
 
-" Delete comment character when joining commented lines
-set formatoptions+=j
+" Global options
+" ==============
 
-" - tell supertab plugin to be context sensitive for completion
-let g:SuperTabDefaultCompletionType = "context"
-" - tell supertab plugin to complete the longest common completion in case of
-"   multiple matches
-let g:SuperTabLongestEnhanced = 1
-" - tell supertab plugin to only complete when there isn't a leading whitespace
-let g:SuperTabLeadingSpaceCompletion = 0
+" Highlight leading/trailing space errors
+let g:c_space_errors = 1
 
-" taglist plugin - close when taglist is the only open window
-let g:Tlist_Exit_OnlyWindow = 1
-let g:Tlist_Show_One_File = 1
+" Python specific stuff
+let g:python_highlight_all = 1
+let g:pep8_text_width = 119
+let g:pep8_comment_text_width = 72
+
+
+" Mappings
+" ========
 
 " Make the up and down movements move by "display" lines:
 map j      gj
@@ -120,114 +113,154 @@ map <Leader>n :set number! cursorline!<CR>
 " Toggle list
 map <Leader>l :set list!<CR>
 
-" Source man plugin (I need it all the time, even when mailing mom)
+" Keep search matches in the middle of the screen
+" http://vimrcfu.com/snippet/175
+nnoremap n nzz
+nnoremap N Nzz
+
+" Use <C-L> to clear the highlighting of :set hlsearch.
+if maparg('<C-L>', 'n') ==# ''
+    nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+endif
+
+" write with sudo using :w!!
+cmap w!! w !sudo tee > /dev/null %
+
+" Plugins
+" =======
+" Load packaged plugins we need always, irrespective of filetype
+"
+" man plugin (I need it all the time, even when mailing mom)
 runtime! ftplugin/man.vim
 
-" Load matchit plugin packaged with the default vim
-packadd matchit
+" matchit plugin packaged with the default vim
+runtime! macros/matchit
 
-" Stuff that I am picky about:
-" - don't automatically ^fix^ leading/trailing space errors in C files ...
-let c_space_errors = 1
 
-" autocommands
-if has("autocmd")
-    " common stuff
-    " When editing a file, always jump to the last cursor position
-    autocmd BufReadPost *
+" Plugin options
+" ==============
+
+" cbackup
+let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
+let g:backup_purge=20
+
+" supertab
+" - tell supertab plugin to only complete when there isn't a leading whitespace
+let g:SuperTabLeadingSpaceCompletion = 0
+" - tell supertab plugin to be context sensitive for completion
+let g:SuperTabDefaultCompletionType = "context"
+" - tell supertab plugin to complete the longest common prefix in case of multiple matches
+let g:SuperTabLongestEnhanced = 1
+
+" taglist
+" - close when taglist is the only open window
+let g:Tlist_Exit_OnlyWindow = 1
+" - show tags for only the current active buffer
+let g:Tlist_Show_One_File = 1
+
+" markdown
+let g:vim_markdown_folding_disabled=1
+
+" lightline
+let g:lightline = {
+    \ 'active': {
+    \   'left': [['mode', 'paste'],
+    \            ['fugitive', 'virtualenv', 'readonly', 'filename', 'modified']]
+    \   },
+    \   'component_function': {
+    \       'fugitive': 'LightlineFugitive',
+    \       'virtualenv': 'virtualenv#statusline'
+    \   },
+    \ }
+
+function! LightlineFugitive()
+    return exists('*fugitive#head') ? (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
+endfunction
+
+" Autocommands
+" ============
+
+" Common stuff
+" - when editing a file, always jump to the last cursor position
+autocmd BufReadPost *
     \ if line("'\"") > 0 && line ("'\"") <= line("$") |
     \   exe "normal! g'\"" |
     \ endif
 
-    " let terminal resize scale the internal windows
-    autocmd VimResized * :wincmd =
+" - let terminal resize scale the internal windows
+autocmd VimResized * :wincmd =
 
-    " make files
-    autocmd BufNewFile,BufRead Makefile*
-        \ set noexpandtab |
-        \ set softtabstop=0
+" Filetype specific
+" - make files
+autocmd BufNewFile,BufRead Makefile*
+    \ set noexpandtab |
+    \ set softtabstop=0
 
-    " spec files
-    autocmd BufNewFile,BufRead *.spec
+" - spec files
+autocmd BufNewFile,BufRead *.spec
     \ let packager = "Steven Fernandez <lonetwin@fedoraproject.org>"
-    autocmd BufNewFile *.spec
+autocmd BufNewFile *.spec
     \ 0r $HOME/.vim/template.spec | ks | call NewSpec() | 's
-        fun NewSpec()
-            exe "g/Name:/s/Name:/Name:\t\t" . expand("%:t:r")
-        endfun
+    fun NewSpec()
+        exe "g/Name:/s/Name:/Name:\t\t" . expand("%:t:r")
+    endfun
 
-    " nginx files
-    autocmd BufNewFile,BufRead *nginx/* set ft=nginx
+" - nginx files
+autocmd BufNewFile,BufRead *nginx/* set ft=nginx
 
-    " python files
-    " - highlight numbers, builtins, standard exceptions and space errors
-    " - turn off omni-completion `preview` of the doc string, cos it is
-    "   distracts us
-    autocmd BufNewFile,BufRead *.py
-                \ set ft=python |
-                \ let python_highlight_all = 1 |
-                \ set completeopt=menu,longest |
-                \ let g:pep8_text_width = 119  |
-                \ let g:pep8_comment_text_width = 72
+" python files
+autocmd BufNewFile *.py
+    \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
 
-    autocmd BufNewFile *.py
-                \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
+" - html/templates -- turn off textwidth
+autocmd BufNewFile,BufRead *.pt,*.html set textwidth=0
 
-    " html/templates -- turn off textwidth
-    autocmd BufNewFile,BufRead *.pt
-        \ set textwidth=0 |
-        \ set ft=htmldjango
+" - json files
+autocmd BufNewFile,BufRead *.json
+            \ set formatprg=python\ -m\ json.tool |
+            \ map <Leader>j :%!python -m json.tool<CR>
 
-    " for json files use javascript highlighting
-    autocmd BufNewFile,BufRead *.json
-                \ set ft=javascript |
-                \ set formatprg=python\ -m\ json.tool |
-                \ map <Leader>j :%!python -m json.tool<CR>
+" - treat .zcml as xml
+autocmd BufNewFile,BufRead *.zcml set ft=xml
 
-    " treat .zcml as xml
-    autocmd BufNewFile,BufRead *.zcml set ft=xml
+" - set xmllint as the formatprg for xml files
+autocmd BufNewFile,BufRead *.xml
+    \ set formatprg=xmllint\ --format\ -
 
-    autocmd BufNewFile,BufRead *.xml
-        \ set formatprg=xmllint\ --format\ -
+" - set up omni-completion if a specific plugin doesn't already exist for
+"   the filetype
+autocmd Filetype *
+    \ if &omnifunc == "" |
+    \   setlocal omnifunc=syntaxcomplete#Complete |
+    \ endif
 
-    " fish files
-    autocmd BufNewFile,BufRead *.fish set ft=fish
+" - Within quickfix buffers, <CR> is used to switch to the next error, so we
+" remove our mapping from above which uses <CR> to cycle-thru-and-maximize the
+" next buffer
+autocmd BufReadPost quickfix nunmap <CR>
 
-    "vim-markdown options
-    autocmd Filetype *.md
-        \ let g:vim_markdown_folding_disabled=1
+" Office suff -- start
+autocmd BufNewFile,BufRead COMMIT_EDITMSG set textwidth=72
+autocmd BufNewFile,BufRead *.rst set textwidth=80
+" Office suff -- end
 
-    " - set up omni-completion if a specific plugin doesn't already exist for
-    "   the filetype
-    autocmd Filetype *
-                \ if &omnifunc == "" |
-                \       setlocal omnifunc=syntaxcomplete#Complete |
-                \ endif
 
-    " Within quickfix buffers, <CR> is used to switch to the next error, so we
-    " remove our mapping from above which uses <CR> to cycle-thru-and-maximize the
-    " next buffer
-    autocmd BufReadPost quickfix nunmap <CR>
-
-    " Office suff -- start
-    autocmd BufNewFile,BufRead COMMIT_EDITMSG set textwidth=72
-    autocmd BufNewFile,BufRead *.rst set textwidth=80
-    " Office suff -- end
-
-endif
-
-" Break bad habits
-" noremap <Up> <NOP>
-" noremap <Down> <NOP>
-" noremap <Left> <NOP>
-" noremap <Right> <NOP>
-
+" Custom commands
+" ===============
 
 " Custom command to write a copy of the currently opened file to a different
 " path on every write. This is useful, for instance, when you have sshfs
 " mounted paths from multiple systems and need to keep a copy of the same file
 " sync'd on all systems
 command -nargs=1 -complete=dir DuplicateAt autocmd BufWritePost * w! <args>%
+
+" See diff between current buffer and the file it was loaded from (*not* across writes !)
+" (tip from :help DiffOrig )
+command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+	 	\ | diffthis | wincmd p | diffthis
+
+" Custom functions
+" ================
 
 " Session Management
 function SaveSession()
@@ -263,10 +296,6 @@ endfunction
 au VimLeavePre * call SaveSession()
 au VimEnter * call LoadSession()
 
-" Move visual block
-vnoremap J :m '>+1<CR>gv
-vnoremap K :m '<-2<CR>gv
-
 " view and paste from register
 " http://vimrcfu.com/snippet/116
 function! Reg()
@@ -279,41 +308,3 @@ function! Reg()
     redraw
 endfunction
 command! -nargs=0 Reg call Reg()
-
-" Keep search matches in the middle of the screen
-" http://vimrcfu.com/snippet/175
-nnoremap n nzz
-nnoremap N Nzz
-
-" See diff between current buffer and the file it was loaded from (*not* across writes !)
-" (tip from :help DiffOrig )
-command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
-	 	\ | diffthis | wincmd p | diffthis
-
-" Use <C-L> to clear the highlighting of :set hlsearch.
-if maparg('<C-L>', 'n') ==# ''
-    nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
-endif
-
-"lightline config
-let g:lightline = {
-    \ 'active': {
-    \   'left': [['mode', 'paste'],
-    \            ['fugitive', 'virtualenv', 'readonly', 'filename', 'modified']]
-    \   },
-    \   'component_function': {
-    \       'fugitive': 'LightlineFugitive',
-    \       'virtualenv': 'virtualenv#statusline'
-    \   },
-    \ }
-
-function! LightlineFugitive()
-    return exists('*fugitive#head') ? (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
-endfunction
-
-if &term =~ '256color'
-  " disable Background Color Erase (BCE) so that color schemes
-  " render properly when inside 256-color tmux and GNU screen.
-  " see also http://snk.tuxfamily.org/log/vim-256color-bce.html
-  set t_ut=
-endif
