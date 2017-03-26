@@ -70,6 +70,8 @@ set undodir=$HOME/.vim/undo     " ...here's where to save undo histories
 set undolevels=1000             " ...here's how many undos to save
 set undoreload=10000            " ...here's the number of lines to save for undo
 
+set cryptmethod=blowfish2       " default encryption method to use with -x
+
 " Completion options
 set spell spelllang=en_us                " We no how to spelle (highlight and CTRL-X_S completion)
 set dictionary+=/usr/share/dict/words    " Add a dictionary (CTRL-X_CTRL_D completion)
@@ -180,70 +182,70 @@ endfunction
 " Autocommands
 " ============
 
-" Common stuff
-" - when editing a file, always jump to the last cursor position
-autocmd BufReadPost *
-    \ if line("'\"") > 0 && line ("'\"") <= line("$") |
-    \   exe "normal! g'\"" |
-    \ endif
+augroup localconfig
+    " avoid multiple definition on reloads
+    autocmd!
 
-" - let terminal resize scale the internal windows
-autocmd VimResized * :wincmd =
+    " Common stuff
+    " - when editing a file, always jump to the last cursor position
+    autocmd BufReadPost *
+        \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+        \   exe "normal! g'\"" |
+        \ endif
 
-" Filetype specific
-" - make files
-autocmd BufNewFile,BufRead Makefile*
-    \ set noexpandtab |
-    \ set softtabstop=0
+    " - let terminal resize scale the internal windows
+    autocmd VimResized * :wincmd =
 
-" - spec files
-autocmd BufNewFile,BufRead *.spec
-    \ let packager = "Steven Fernandez <lonetwin@fedoraproject.org>"
-autocmd BufNewFile *.spec
-    \ 0r $HOME/.vim/template.spec | ks | call NewSpec() | 's
-    fun NewSpec()
-        exe "g/Name:/s/Name:/Name:\t\t" . expand("%:t:r")
-    endfun
+    " Filetype specific
+    " - make files
+    autocmd BufNewFile,BufRead Makefile*
+        \ set noexpandtab |
+        \ set softtabstop=0
 
-" - nginx files
-autocmd BufNewFile,BufRead *nginx/* set ft=nginx
+    " - spec files
+    autocmd BufNewFile,BufRead *.spec
+        \ let packager = "Steven Fernandez <lonetwin@fedoraproject.org>"
+    autocmd BufNewFile *.spec
+        \ 0r $HOME/.vim/template.spec | ks | call NewSpec() | 's
+        fun NewSpec()
+            exe "g/Name:/s/Name:/Name:\t\t" . expand("%:t:r")
+        endfun
 
-" python files
-autocmd BufNewFile *.py
-    \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
+    " - nginx files
+    autocmd BufNewFile,BufRead *nginx/* set ft=nginx
 
-" - html/templates -- turn off textwidth
-autocmd BufNewFile,BufRead *.pt,*.html set textwidth=0
+    " python files
+    autocmd BufNewFile *.py
+        \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
 
-" - json files
-autocmd BufNewFile,BufRead *.json
-            \ set formatprg=python\ -m\ json.tool |
-            \ map <Leader>j :%!python -m json.tool<CR>
+    " - html/templates -- turn off textwidth
+    autocmd BufNewFile,BufRead *.pt,*.html set textwidth=0
 
-" - treat .zcml as xml
-autocmd BufNewFile,BufRead *.zcml set ft=xml
+    " - json files
+    autocmd BufNewFile,BufRead *.json
+                \ set formatprg=python\ -m\ json.tool |
+                \ map <Leader>j :%!python -m json.tool<CR>
 
-" - set xmllint as the formatprg for xml files
-autocmd BufNewFile,BufRead *.xml
-    \ set formatprg=xmllint\ --format\ -
+    " - treat .zcml as xml
+    autocmd BufNewFile,BufRead *.zcml set ft=xml
 
-" - set up omni-completion if a specific plugin doesn't already exist for
-"   the filetype
-autocmd Filetype *
-    \ if &omnifunc == "" |
-    \   setlocal omnifunc=syntaxcomplete#Complete |
-    \ endif
+    " - set xmllint as the formatprg for xml files
+    autocmd BufNewFile,BufRead *.xml
+        \ set formatprg=xmllint\ --format\ -
 
-" - Within quickfix buffers, <CR> is used to switch to the next error, so we
-" remove our mapping from above which uses <CR> to cycle-thru-and-maximize the
-" next buffer
-autocmd BufReadPost quickfix nunmap <CR>
+    " - set up omni-completion if a specific plugin doesn't already exist for
+    "   the filetype
+    autocmd Filetype *
+        \ if &omnifunc == "" |
+        \   setlocal omnifunc=syntaxcomplete#Complete |
+        \ endif
 
-" Office suff -- start
-autocmd BufNewFile,BufRead COMMIT_EDITMSG set textwidth=72
-autocmd BufNewFile,BufRead *.rst set textwidth=80
-" Office suff -- end
+    " Office suff -- start
+    autocmd BufNewFile,BufRead COMMIT_EDITMSG set textwidth=72
+    autocmd BufNewFile,BufRead *.rst set textwidth=80
+    " Office suff -- end
 
+augroup END
 
 " Custom commands
 " ===============

@@ -43,3 +43,12 @@
 [submodule "bundle/xmledit"]
 	path = bundle/xmledit
 	url = git@github.com:sukima/xmledit.git
+[submodule "bundle/indentpython.vim"]
+	path = bundle/indentpython.vim
+	url = git@github.com:vim-scripts/indentpython.vim.git
+[submodule "bundle/vim-mundo"]
+	path = bundle/vim-mundo
+	url = git@github.com:simnalamburt/vim-mundo.git
+[submodule "bundle/django-plus.vim"]
+	path = bundle/django-plus.vim
+	url = git@github.com:tweekmonster/django-plus.vim.git
