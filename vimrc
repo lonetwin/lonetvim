@@ -15,6 +15,8 @@ syntax on
 " Turn on filetype detection, plugin loading and indent
 filetype plugin indent on
 
+" Load matchit plugin
+packadd! matchit
 
 " Customization options
 " =====================
@@ -109,6 +111,9 @@ map <Up>   gk
 " Cycle between windows and make active window full size
 nmap <CR> <C-W>w<C-W>_
 
+" execute macro stored in register q (qq to start recording)
+nnoremap <Space> @q
+
 " Toggle line numbers
 map <Leader>n :set number! cursorline!<CR>
 
@@ -141,6 +146,11 @@ runtime! macros/matchit
 
 " Plugin options
 " ==============
+
+" auto-pairs
+" - don't look for closing pair beyond current line
+let g:AutoPairsMultilineClose = 0
+let g:AutoPairsShortcutFastWrap = "<C-e>"
 
 " cbackup
 let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
