@@ -115,7 +115,7 @@ nmap <CR> <C-W>w<C-W>_
 nnoremap <Space> @q
 
 " Toggle line numbers
-map <Leader>n :set number! cursorline!<CR>
+map <Leader>n :set number! relativenumber!<CR>
 
 " Toggle list
 map <Leader>l :set list!<CR>
