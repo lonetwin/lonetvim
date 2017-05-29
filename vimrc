@@ -189,6 +189,9 @@ function! LightlineFugitive()
     return exists('*fugitive#head') ? (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
 endfunction
 
+" easytags
+let g:easytags_file="tags"
+
 " Autocommands
 " ============
 
