@@ -1,57 +1,76 @@
 [submodule "bundle/colorschemes"]
 	path = bundle/colorschemes
 	url = git@github.com:flazz/vim-colorschemes.git
+	ignore = untracked
 [submodule "bundle/supertab"]
 	path = bundle/supertab
 	url = git://github.com/ervandew/supertab.git
+	ignore = untracked
 [submodule "bundle/vcscommand"]
 	path = bundle/vcscommand
 	url = git://repo.or.cz/vcscommand
+	ignore = untracked
 [submodule "bundle/vim-indent-object"]
 	path = bundle/vim-indent-object
 	url = git@github.com:michaeljsmith/vim-indent-object.git
+	ignore = untracked
 [submodule "bundle/vim-flake8"]
 	path = bundle/vim-flake8
 	url = git@github.com:nvie/vim-flake8.git
+	ignore = untracked
 [submodule "bundle/lightline"]
 	path = bundle/lightline.vim
 	url = git@github.com:itchyny/lightline.vim
+	ignore = untracked
 [submodule "bundle/python-syntax"]
 	path = bundle/python-syntax
 	url = git@github.com:vim-python/python-syntax.git
+	ignore = untracked
 [submodule "bundle/vim-markdown"]
 	path = bundle/vim-markdown
 	url = git@github.com:plasticboy/vim-markdown
+	ignore = untracked
 [submodule "bundle/vim-pep8-text-width"]
 	path = bundle/vim-pep8-text-width
 	url = git@github.com:jimf/vim-pep8-text-width.git
+	ignore = untracked
 [submodule "bundle/vim-rsi"]
 	path = bundle/vim-rsi
 	url = git://github.com/tpope/vim-rsi.git
+	ignore = untracked
 [submodule "bundle/auto-pairs"]
 	path = bundle/auto-pairs
 	url = git@github.com:jiangmiao/auto-pairs.git
+	ignore = untracked
 [submodule "bundle/vim-fugitive"]
 	path = bundle/vim-fugitive
 	url = git@github.com:tpope/vim-fugitive.git
+	ignore = untracked
 [submodule "bundle/vim-git"]
 	path = bundle/vim-git
 	url = git@github.com:tpope/vim-git.git
+	ignore = untracked
 [submodule "bundle/vim-virtualenv"]
 	path = bundle/vim-virtualenv
 	url = git@github.com:jmcantrell/vim-virtualenv.git
+	ignore = untracked
 [submodule "bundle/indentpython.vim"]
 	path = bundle/indentpython.vim
 	url = git@github.com:vim-scripts/indentpython.vim.git
+	ignore = untracked
 [submodule "bundle/vim-mundo"]
 	path = bundle/vim-mundo
 	url = git@github.com:simnalamburt/vim-mundo.git
+	ignore = untracked
 [submodule "bundle/django-plus.vim"]
 	path = bundle/django-plus.vim
 	url = git@github.com:tweekmonster/django-plus.vim.git
+	ignore = untracked
 [submodule "bundle/vim-closetag"]
 	path = bundle/vim-closetag
 	url = git@github.com:alvan/vim-closetag.git
+	ignore = untracked
 [submodule "bundle/vim-endwise"]
 	path = bundle/vim-endwise
 	url = git@github.com:tpope/vim-endwise.git
+	ignore = untracked
