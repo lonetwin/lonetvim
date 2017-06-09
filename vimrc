@@ -179,6 +179,9 @@ let g:lightline = {
     \   'left': [['mode', 'paste'],
     \            ['fugitive', 'virtualenv', 'readonly', 'filename', 'modified']]
     \   },
+    \   'component': {
+    \       'filename': '%f',
+    \   },
     \   'component_function': {
     \       'fugitive': 'LightlineFugitive',
     \       'virtualenv': 'virtualenv#statusline'
@@ -186,7 +189,7 @@ let g:lightline = {
     \ }
 
 function! LightlineFugitive()
-    return exists('*fugitive#head') ? (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
+    return exists('*fugitive#head') ? 'λ ' . (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
 endfunction
 
 " easytags
