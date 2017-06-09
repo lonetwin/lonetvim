@@ -193,7 +193,7 @@ function! LightlineFugitive()
 endfunction
 
 " easytags
-let g:easytags_file="tags"
+let g:easytags_file='~/.vimtags'
 
 " virtualenv
 let g:virtualenv_stl_format = 'ε %n'
