@@ -6,7 +6,7 @@
 " ====================
 
 " Call pathogen
-let g:pathogen_disabled = ['vcscommand', 'vim-virtualenv']
+let g:pathogen_disabled = ['vcscommand']
 call pathogen#infect()
 
 "Turn syntax highlighting on.
@@ -194,6 +194,9 @@ endfunction
 
 " easytags
 let g:easytags_file="tags"
+
+" virtualenv
+let g:virtualenv_stl_format = 'ε %n'
 
 " Autocommands
 " ============
