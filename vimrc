@@ -236,6 +236,7 @@ augroup localconfig
     " python files
     autocmd BufNewFile *.py
         \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
+    autocmd BufWritePost *.py call Flake8()
 
     " - html/templates -- turn off textwidth
     autocmd BufNewFile,BufRead *.pt,*.html set textwidth=0
