@@ -74,9 +74,3 @@
 	path = bundle/vim-endwise
 	url = git@github.com:tpope/vim-endwise.git
 	ignore = untracked
-[submodule "bundle/vim-easytags"]
-	path = bundle/vim-easytags
-	url = git@github.com:xolox/vim-easytags.git
-[submodule "bundle/vim-misc"]
-	path = bundle/vim-misc
-	url = git@github.com:xolox/vim-misc.git

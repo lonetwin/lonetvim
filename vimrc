@@ -192,9 +192,6 @@ function! LightlineFugitive()
     return exists('*fugitive#head') ? 'λ ' . (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
 endfunction
 
-" easytags
-let g:easytags_file='~/.vimtags'
-
 " virtualenv
 let g:virtualenv_stl_format = 'ε %n'
 
