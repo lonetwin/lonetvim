@@ -6,7 +6,7 @@
 " ====================
 
 " Call pathogen
-let g:pathogen_disabled = ['vcscommand']
+let g:pathogen_disabled = []
 call pathogen#infect()
 
 "Turn syntax highlighting on.
