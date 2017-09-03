@@ -23,11 +23,16 @@ packadd! matchit
 
 " visual options
 set background=dark             " Makes syntax highlighting lighter.
-exe has('gui_running') ? 'colorscheme desert' : 'colorscheme busierbee'
+if has('gui_running')
+    colorscheme desert
+else
+    exe empty($TRANSPARENT_TERM) ? 'colorscheme busierbee' : 'colorscheme transparent'
+endif
 set laststatus=2                " Always show a statusbar.
 set noshowmode                  " Hide the line showing the mode since that's part of our statusbar
 set modeline                    " Respect the file's 'modeline' if it has been defined
 set title                       " Set the terminal title
+set titleold=                   " Don't default terminal title to "Thanks for flying vim" on exit
 set scrolloff=5                 " The offset at which we start scrolling
 set warn                        " Give a warning message when a shell command is used while the
                                 " buffer has been changed.
@@ -41,8 +46,8 @@ set wrap                          " wrap text at textwidth
 set backspace=eol,start,indent    " Backspace over eol, start of line and indents
 set nostartofline                 " Don't move cursor to first non-blank position when jumping with
                                   " commands like gg
-set cindent                       " automatically indent following cindent'ing rules (better than
-                                  " autoindent or smartindent but less flexible than indentexpr)
+set cindent                       " Autoindent using cindent'ing rules (better than autoindent or
+                                  " smartindent but less flexible than indentexpr)
 set tabstop=8                     " Tabs (ASCII 0x09) are always 8 characters !!!
 set expandtab                     " Use spaces instead of tabs for indentation
 set smarttab                      " ...but do it smartly. ":help st" for more info
@@ -63,8 +68,7 @@ set ignorecase                  " Ignore case in search pattern
 
 " history and backup
 set history=100                 " Keep command history
-set autowrite                   " Automatically save changes whenever moving out of the buffer
-                                " temporarily
+set autowrite                   " Autosave changes when moving out of the buffer temporarily
 set backup                      " Keep backup of files
 set backupdir=$HOME/tmp/vimbkup " ...here's where to keep 'em
 set undofile                    " Save undo's after file closes
@@ -72,23 +76,25 @@ set undodir=$HOME/.vim/undo     " ...here's where to save undo histories
 set undolevels=1000             " ...here's how many undos to save
 set undoreload=10000            " ...here's the number of lines to save for undo
 
-set cryptmethod=blowfish2       " default encryption method to use with -x
-
 " Completion options
 set spell spelllang=en_us                " We no how to spelle (highlight and CTRL-X_S completion)
 set dictionary+=/usr/share/dict/words    " Add a dictionary (CTRL-X_CTRL_D completion)
 set thesaurus+=./mthesaur.txt            " Add a thesaurus (CTRL-X_CTRL_T completion)
-set wildignore+=*.swp,*.pyc,*.o          " In command-mode, skip over these when completing paths
-set wildmode=list:longest                " In command-mode, show list of matches, and complete until
+set wildignore+=*.swp,*.pyc,*.o,*.pdf    " In command-mode, skip over these when completing paths
+set wildignore+=*.ico,*.png,*.jpg,*.gif
+set wildignore+=.git/*
+set wildmode=list:longest,longest        " In command-mode, show list of matches, and complete until
                                          " the longest common prefix
 set completeopt=menuone,longest,noselect " In insert-mode, always show a menu, complete until the
                                          " longest common prefix and don't select any matches
 set infercase                            " Infer case for completion. Needed because we've set
                                          " ignorecase for searches
 
+" Other options
+set cryptmethod=blowfish2       " default encryption method to use with -x
 
-" Global options
-" ==============
+" Global variables
+" ================
 
 " Highlight leading/trailing space errors
 let g:c_space_errors = 1
@@ -228,22 +234,17 @@ augroup localconfig
     " python files
     autocmd BufNewFile *.py
         \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
-    autocmd BufWritePost *.py call Flake8()
 
     " - html/templates -- turn off textwidth
     autocmd BufNewFile,BufRead *.pt,*.html set textwidth=0
 
-    " - json files
-    autocmd BufNewFile,BufRead *.json
-                \ set formatprg=python\ -m\ json.tool |
-                \ map <Leader>j :%!python -m json.tool<CR>
-
     " - treat .zcml as xml
     autocmd BufNewFile,BufRead *.zcml set ft=xml
 
-    " - set xmllint as the formatprg for xml files
-    autocmd BufNewFile,BufRead *.xml
-        \ set formatprg=xmllint\ --format\ -
+    " - set custom formatprg for some filetypes
+    " Note to self: vim is not too good at detecting json files, make sure ft is set!
+    autocmd Filetype json set formatprg=python\ -m\ json.tool
+    autocmd Filetype xml set formatprg=xmllint\ --format\ -
 
     " - set up omni-completion if a specific plugin doesn't already exist for
     "   the filetype
@@ -278,7 +279,7 @@ command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
 
 " Session Management
 function SaveSession()
-    if winnr('$') > 1 || tabpagenr('$') > 1
+    if (winnr('$') > 1 || tabpagenr('$') > 1) && !&diff
         " we have more than one windows or tabs open, ask whether we want
         " to save the session.
         let save_sesssion = confirm("Save session ? ", "&yes\n&no", 1)
