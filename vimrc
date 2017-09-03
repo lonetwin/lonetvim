@@ -156,13 +156,8 @@ let g:AutoPairsShortcutFastWrap = "<C-e>"
 let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
 let g:backup_purge=20
 
-" supertab
-" - tell supertab plugin to only complete when there isn't a leading whitespace
-let g:SuperTabLeadingSpaceCompletion = 0
-" - tell supertab plugin to be context sensitive for completion
-let g:SuperTabDefaultCompletionType = "context"
-" - tell supertab plugin to complete the longest common prefix in case of multiple matches
-let g:SuperTabLongestEnhanced = 1
+let g:jedi#show_call_signatures = "0"
+
 
 " taglist
 " - close when taglist is the only open window
