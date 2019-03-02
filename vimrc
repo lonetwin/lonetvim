@@ -5,6 +5,8 @@
 " Initialization stuff
 " ====================
 
+exe has('python3')
+
 " Call pathogen
 let g:pathogen_disabled = []
 call pathogen#infect()
@@ -34,6 +36,7 @@ set modeline                    " Respect the file's 'modeline' if it has been d
 set title                       " Set the terminal title
 set titleold=                   " Don't default terminal title to "Thanks for flying vim" on exit
 set scrolloff=5                 " The offset at which we start scrolling
+set splitright                  " Default vsplit to the right
 set warn                        " Give a warning message when a shell command is used while the
                                 " buffer has been changed.
 if &term =~ '256color'          " Disable Background Color Erase (BCE) so that color schemes render
@@ -83,10 +86,12 @@ set thesaurus+=./mthesaur.txt            " Add a thesaurus (CTRL-X_CTRL_T comple
 set wildignore+=*.swp,*.pyc,*.o,*.pdf    " In command-mode, skip over these when completing paths
 set wildignore+=*.ico,*.png,*.jpg,*.gif
 set wildignore+=.git/*
-set wildmode=list:longest,longest        " In command-mode, show list of matches, and complete until
-                                         " the longest common prefix
+set wildmenu                             " In command-mode, show a 'menu' for completion
+set wildmode=longest:full,full           " In command-mode, complete until the longest common
+                                         " prefix and show menu of full matches, then cycle thru'
+                                         " menu of matches
 set completeopt=menuone,longest,noselect " In insert-mode, always show a menu, complete until the
-                                         " longest common prefix and don't select any matches
+                                         " longest common prefix but don't automatically select
 set infercase                            " Infer case for completion. Needed because we've set
                                          " ignorecase for searches
 
@@ -109,13 +114,16 @@ let g:pep8_comment_text_width = 72
 " ========
 
 " Make the up and down movements move by "display" lines:
-map j      gj
-map k      gk
-map <Down> gj
-map <Up>   gk
+map j gj
+map k gk
 
-" Cycle between windows and make active window full size
-nmap <CR> <C-W>w<C-W>_
+" Remap keystroke for switch to Ex-mode (which is never used) to quit all which is used more
+" frequently than never
+map Q :qa<CR>
+command -nargs=0 -bang Q qa
+
+" Remap 'only window' to split in tab
+map <C-W>o :tab split<CR>
 
 " execute macro stored in register q (qq to start recording)
 nnoremap <Space> @q
@@ -138,6 +146,10 @@ endif
 
 " write with sudo using :w!!
 cmap w!! w !sudo tee > /dev/null %
+
+" Esc for going to Normal mode from terminal mode
+tnoremap <Esc> <C-\><C-n>
+
 
 " Plugins
 " =======
@@ -162,17 +174,35 @@ let g:AutoPairsShortcutFastWrap = "<C-e>"
 let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
 let g:backup_purge=20
 
-let g:jedi#show_call_signatures = "0"
+" SuperTab
+let g:SuperTabDefaultCompletionType = 'context'
+let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
+let g:SuperTabRetainCompletionDuration = 'completion'
+let g:SuperTabLongestEnhanced = 1
+let g:SuperTabLongestHighlight = 1
+let g:SuperTabCrMapping = 1
+autocmd FileType *
+    \ if &omnifunc != '' |
+    \   call SuperTabChain(&omnifunc, "<c-p>") |
+    \ endif
+
+" jedi
+" show call signatures in the command line instead of pop-up
+let g:jedi#show_call_signatures = 2
+
+" don't modify completeopt to menuone,longest,preview
+let g:jedi#auto_vim_configuration = 0
+
+" use tabs for go-to/show-definition/related-names
+let g:jedi#use_tabs_not_buffers = 1
 
 
 " taglist
 " - close when taglist is the only open window
 let g:Tlist_Exit_OnlyWindow = 1
-" - show tags for only the current active buffer
-let g:Tlist_Show_One_File = 1
 
 " markdown
-let g:vim_markdown_folding_disabled=1
+let g:vim_markdown_folding_disabled = 1
 
 " lightline
 let g:lightline = {
@@ -196,6 +226,19 @@ endfunction
 " virtualenv
 let g:virtualenv_stl_format = 'ε %n'
 
+function! UpdatePathForHackonEnv()
+    if !empty($HACKON_ENV)
+        setlocal path=.,,$HACKON_ENV/src/**/
+        if !empty($VIRTUAL_ENV)
+            let additional_path = systemlist("grep '^/' " . glob('$VIRTUAL_ENV/lib/python???/site-packages/_virtualenv_path_extensions.pth'))
+            if !empty(additional_path)
+                let &path = &path . ',' . join(additional_path, "/**/,") . '/**/'
+            endif
+        endif
+    endif
+endfunction
+
+
 " Autocommands
 " ============
 
@@ -216,8 +259,8 @@ augroup localconfig
     " Filetype specific
     " - make files
     autocmd BufNewFile,BufRead Makefile*
-        \ set noexpandtab |
-        \ set softtabstop=0
+        \ setlocal noexpandtab |
+        \ setlocal softtabstop=0
 
     " - spec files
     autocmd BufNewFile,BufRead *.spec
@@ -235,6 +278,8 @@ augroup localconfig
     autocmd BufNewFile *.py
         \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
 
+    autocmd BufNewFile,BufRead *.py call UpdatePathForHackonEnv()
+
     " - html/templates -- turn off textwidth
     autocmd BufNewFile,BufRead *.pt,*.html set textwidth=0
 
@@ -243,8 +288,8 @@ augroup localconfig
 
     " - set custom formatprg for some filetypes
     " Note to self: vim is not too good at detecting json files, make sure ft is set!
-    autocmd Filetype json set formatprg=python\ -m\ json.tool
-    autocmd Filetype xml set formatprg=xmllint\ --format\ -
+    autocmd Filetype json setlocal formatprg=python\ -m\ json.tool
+    autocmd Filetype xml setlocal formatprg=xmllint\ --format\ -
 
     " - set up omni-completion if a specific plugin doesn't already exist for
     "   the filetype
@@ -253,10 +298,17 @@ augroup localconfig
         \   setlocal omnifunc=syntaxcomplete#Complete |
         \ endif
 
-    " Office suff -- start
-    autocmd BufNewFile,BufRead COMMIT_EDITMSG set textwidth=72
-    autocmd BufNewFile,BufRead *.rst set textwidth=80
-    " Office suff -- end
+    " - convenience when editing rst files
+    autocmd BufNewFile,BufRead *.rst
+        \ setlocal textwidth=80 |
+        \ setlocal suffixesadd=.rst
+
+    " Vagrant file
+    autocmd BufNewFile Vagrantfile 0r $HOME/.vim/template.vagrantfile
+
+    " Office stuff -- start
+    autocmd BufNewFile,BufRead COMMIT_EDITMSG setlocal textwidth=78
+    " Office stuff -- end
 
 augroup END
 
@@ -311,15 +363,13 @@ endfunction
 au VimLeavePre * call SaveSession()
 au VimEnter * call LoadSession()
 
-" view and paste from register
-" http://vimrcfu.com/snippet/116
-function! Reg()
-    reg
-    echo "Register: "
-    let char = nr2char(getchar())
-    if char != "\<Esc>"
-        execute "normal! \"".char."p"
-    endif
-    redraw
-endfunction
-command! -nargs=0 Reg call Reg()
+" Automatically open, but do not go to (if there are errors) the quickfix /
+" location list window, or close it when is has become empty.
+"
+" Note: Must allow nesting of autocmds to enable any customizations for quickfix
+" buffers.
+" Note: Normally, :cwindow jumps to the quickfix window if the command opens it
+" (but not if it's already open). However, as part of the autocmd, this doesn't
+" seem to happen.
+autocmd QuickFixCmdPost [^l]* nested cwindow
+autocmd QuickFixCmdPost    l* nested lwindow
