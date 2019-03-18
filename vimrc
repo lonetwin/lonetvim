@@ -224,7 +224,7 @@ function! LightlineFugitive()
 endfunction
 
 " virtualenv
-let g:virtualenv_stl_format = 'ε %n'
+let g:virtualenv_stl_format = 'ε ' . fnamemodify($HACKON_ENV, ':t')
 
 function! UpdatePathForHackonEnv()
     if !empty($HACKON_ENV)
