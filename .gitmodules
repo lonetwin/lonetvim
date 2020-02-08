@@ -73,3 +73,6 @@
 [submodule "bundle/jedi-vim"]
 	path = bundle/jedi-vim
 	url = git@github.com:davidhalter/jedi-vim.git
+[submodule "pack/tpope/start/vim-vinegar"]
+	path = pack/tpope/start/vim-vinegar
+	url = git@github.com:tpope/vim-vinegar.git

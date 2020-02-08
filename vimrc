@@ -68,6 +68,7 @@ set clipboard=unnamedplus,unnamed " Make the contents of the yank/copy/deleted t
 set incsearch                   " Show the matches as we type them out
 set hlsearch                    " Highlight all matches of the last search pattern
 set ignorecase                  " Ignore case in search pattern
+set shortmess-=S                " Show search count message when searching
 
 " history and backup
 set history=100                 " Keep command history
@@ -203,6 +204,16 @@ let g:Tlist_Exit_OnlyWindow = 1
 
 " markdown
 let g:vim_markdown_folding_disabled = 1
+let g:vim_markdown_toc_autofit = 1
+let g:vim_markdown_conceal_code_blocks = 0
+let g:vim_markdown_fenced_languages = ['c++=cpp', 'viml=vim', 'bash=sh', 'ini=dosini', 'python=python']
+let g:vim_markdown_follow_anchor = 1
+let g:vim_markdown_new_list_item_indent = 2
+let g:vim_markdown_no_extensions_in_markdown = 1
+let g:vim_markdown_auto_insert_bullets = 0
+let g:vim_markdown_edit_url_in = 'tab'
+
+autocmd FileType markdown set conceallevel=2
 
 " lightline
 let g:lightline = {
@@ -256,6 +267,15 @@ augroup localconfig
     " - let terminal resize scale the internal windows
     autocmd VimResized * :wincmd =
 
+    autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
+      function! s:auto_mkdir(dir, force)
+        if !isdirectory(a:dir)
+            \ && (a:force
+            \       || input("'" . a:dir . "' does not exist. Create? [y/N] ") =~? '^y\%[es]$')
+          call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
+        endif
+      endfunction
+
     " Filetype specific
     " - make files
     autocmd BufNewFile,BufRead Makefile*
@@ -301,7 +321,12 @@ augroup localconfig
     " - convenience when editing rst files
     autocmd BufNewFile,BufRead *.rst
         \ setlocal textwidth=80 |
-        \ setlocal suffixesadd=.rst
+        \ setlocal suffixesadd=.rst |
+        \ iabbrev <expr> {date} strftime('%F') . '<CR>----------<CR><CR>*'
+
+    " - convenience when editing md files
+    autocmd BufNewFile,BufRead *.md
+        \ iabbrev <expr> {date.md} '# ' . strftime('%a, %F') . '<CR><CR>*'
 
     " Vagrant file
     autocmd BufNewFile Vagrantfile 0r $HOME/.vim/template.vagrantfile
@@ -320,11 +345,6 @@ augroup END
 " mounted paths from multiple systems and need to keep a copy of the same file
 " sync'd on all systems
 command -nargs=1 -complete=dir DuplicateAt autocmd BufWritePost * w! <args>%
-
-" See diff between current buffer and the file it was loaded from (*not* across writes !)
-" (tip from :help DiffOrig )
-command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
-	 	\ | diffthis | wincmd p | diffthis
 
 " Custom functions
 " ================
