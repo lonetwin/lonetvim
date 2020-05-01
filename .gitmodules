@@ -76,3 +76,9 @@
 [submodule "pack/tpope/start/vim-vinegar"]
 	path = pack/tpope/start/vim-vinegar
 	url = git@github.com:tpope/vim-vinegar.git
+[submodule "bundle/vim-peekaboo"]
+	path = bundle/vim-peekaboo
+	url = git://github.com/junegunn/vim-peekaboo.git
+[submodule "bundle/vim-jinja"]
+	path = bundle/vim-jinja
+	url = git://github.com/lepture/vim-jinja.git
