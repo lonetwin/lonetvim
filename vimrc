@@ -5,7 +5,11 @@
 " Initialization stuff
 " ====================
 
-exe has('python3')
+if !empty($VIRTUAL_ENV)
+    :python3 import os
+    :python3 activate_this = os.path.join(os.environ.get('VIRTUAL_ENV'), 'bin', 'activate_this.py')
+    :python3 exec(compile(open(activate_this).read(), activate_this, 'exec'), {'__file__': activate_this})
+endif
 
 " Call pathogen
 let g:pathogen_disabled = []
@@ -63,6 +67,7 @@ set formatoptions+=j              " Delete comment character when joining commen
 set pastetoggle=<F2>              " Mapping to take care of disabling ai and si when pasting text.
 set clipboard=unnamedplus,unnamed " Make the contents of the yank/copy/deleted text available to the
                                   " X clipboard
+set encoding=utf-8
 
 " search behavior
 set incsearch                   " Show the matches as we type them out
@@ -79,6 +84,8 @@ set undofile                    " Save undo's after file closes
 set undodir=$HOME/.vim/undo     " ...here's where to save undo histories
 set undolevels=1000             " ...here's how many undos to save
 set undoreload=10000            " ...here's the number of lines to save for undo
+set viminfo=%,'50,<50           " Remember the buffer list (%), 50 previously edited files (')
+                                " and 50 lines for each register (<)
 
 " Completion options
 set spell spelllang=en_us                " We no how to spelle (highlight and CTRL-X_S completion)
@@ -197,6 +204,9 @@ let g:jedi#auto_vim_configuration = 0
 " use tabs for go-to/show-definition/related-names
 let g:jedi#use_tabs_not_buffers = 1
 
+" ale
+let g:ale_completion_enabled = 1
+
 
 " taglist
 " - close when taglist is the only open window
@@ -205,7 +215,7 @@ let g:Tlist_Exit_OnlyWindow = 1
 " markdown
 let g:vim_markdown_folding_disabled = 1
 let g:vim_markdown_toc_autofit = 1
-let g:vim_markdown_conceal_code_blocks = 0
+let g:vim_markdown_conceal_code_blocks = 1
 let g:vim_markdown_fenced_languages = ['c++=cpp', 'viml=vim', 'bash=sh', 'ini=dosini', 'python=python']
 let g:vim_markdown_follow_anchor = 1
 let g:vim_markdown_new_list_item_indent = 2
@@ -223,10 +233,10 @@ let g:lightline = {
     \   },
     \   'component': {
     \       'filename': '%f',
+    \       'virtualenv': empty($VIRTUAL_ENV) ? '' : 'ε ' . fnamemodify($HACKON_ENV, ':t')
     \   },
     \   'component_function': {
     \       'fugitive': 'LightlineFugitive',
-    \       'virtualenv': 'virtualenv#statusline'
     \   },
     \ }
 
@@ -234,20 +244,10 @@ function! LightlineFugitive()
     return exists('*fugitive#head') ? 'λ ' . (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
 endfunction
 
-" virtualenv
-let g:virtualenv_stl_format = 'ε ' . fnamemodify($HACKON_ENV, ':t')
 
-function! UpdatePathForHackonEnv()
-    if !empty($HACKON_ENV)
-        setlocal path=.,,$HACKON_ENV/src/**/
-        if !empty($VIRTUAL_ENV)
-            let additional_path = systemlist("grep '^/' " . glob('$VIRTUAL_ENV/lib/python???/site-packages/_virtualenv_path_extensions.pth'))
-            if !empty(additional_path)
-                let &path = &path . ',' . join(additional_path, "/**/,") . '/**/'
-            endif
-        endif
-    endif
-endfunction
+" editorconfig
+let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
+let g:EditorConfig_max_line_indicator = "exceeding"
 
 
 " Autocommands
@@ -267,6 +267,26 @@ augroup localconfig
     " - let terminal resize scale the internal windows
     autocmd VimResized * :wincmd =
 
+    " HACKON_ENV specific updates
+    if !empty($HACKON_ENV)
+        autocmd VimEnter * call UpdateForHackonEnv()
+        function! UpdateForHackonEnv()
+            " convenience to lookup python code just by filename.
+            " Here because needs to be set even when !argc for findfile() to work
+            setlocal suffixesadd=.py
+
+            " Update path for env
+            set path=.,,$HACKON_ENV/src/**/
+            if !empty($VIRTUAL_ENV)
+                let additional_path = systemlist("grep '^/' " . glob('$VIRTUAL_ENV/**/_virtualenv_path_extensions.pth'))
+                if !empty(additional_path)
+                    let &path = &path . ',' . join(additional_path, "/**/,") . '/**/'
+                endif
+            endif
+        endfunction
+    endif
+
+    " mkdir -p on write
     autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
       function! s:auto_mkdir(dir, force)
         if !isdirectory(a:dir)
@@ -298,8 +318,6 @@ augroup localconfig
     autocmd BufNewFile *.py
         \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
 
-    autocmd BufNewFile,BufRead *.py call UpdatePathForHackonEnv()
-
     " - html/templates -- turn off textwidth
     autocmd BufNewFile,BufRead *.pt,*.html set textwidth=0
 
@@ -326,7 +344,7 @@ augroup localconfig
 
     " - convenience when editing md files
     autocmd BufNewFile,BufRead *.md
-        \ iabbrev <expr> {date.md} '# ' . strftime('%a, %F') . '<CR><CR>*'
+        \ iabbrev <expr> {date} '# ' . strftime('%a, %F') . '<CR><CR>*'
 
     " Vagrant file
     autocmd BufNewFile Vagrantfile 0r $HOME/.vim/template.vagrantfile
@@ -351,13 +369,21 @@ command -nargs=1 -complete=dir DuplicateAt autocmd BufWritePost * w! <args>%
 
 " Session Management
 function SaveSession()
-    if (winnr('$') > 1 || tabpagenr('$') > 1) && !&diff
-        " we have more than one windows or tabs open, ask whether we want
-        " to save the session.
+    if &diff || expand("%:t") == "COMMIT_EDITMSG"
+        return
+    endif
+
+    if (winnr('$') > 1 || tabpagenr('$') > 1)
+        " check if we have more than one windows or tabs open and ask whether we want to save
+        " the session if we do.
         let save_sesssion = confirm("Save session ? ", "&yes\n&no", 1)
         if save_sesssion == 1
 	    call inputsave()
-            let session_fl = input("save as: ", getcwd()."/.session.vim", "file")
+            if !empty($HACKON_ENV)
+                let session_fl = input("save as: ~/tmp/vim/" . fnamemodify($HACKON_ENV, ':t') . '.session.vim', "file")
+            else
+                let session_fl = input("save as: ", getcwd() . '/.session.vim', "file")
+            endif
             call inputrestore()
             execute 'mksession!' session_fl
         endif
@@ -366,22 +392,45 @@ endfunction
 
 function LoadSession()
     if argc() != 0
+        let filename=expand('%')
+        if !empty($VIRTUAL_ENV) && !filereadable(filename)
+            let matches = findfile(filename, &path, -1)
+            if matches->len() == 1
+                exe "find " . filename
+            else
+                call feedkeys(":find " . filename . "\<Tab>\<Tab>", "t")
+            endif
+        endif
         return
     endif
-    let session_fl = getcwd()."/.session.vim"
-    if filereadable(session_fl)
+
+    let session_fl = getcwd() . '/.session.vim'
+    if !empty($HACKON_ENV) && filereadable('~/tmp/vim/' . fnamemodify($HACKON_ENV, ':t') . '.session.vim')
+        session_fl = '~/tmp/vim/' . fnamemodify($HACKON_ENV, ':t') . '.session.vim'
+    endif
+
+    if filereadable(expand(session_fl))
         let load_sesssion = confirm("Load session from '".session_fl."'?", "&yes\n&no\nload and delete\ndelete", 1)
         if load_sesssion == 1 || load_sesssion == 3
             execute 'source' session_fl
+            execute 'source ~/.vim/after/plugin/colormod.vim'
         endif
         if load_sesssion == 3 || load_sesssion == 4
             call system('unlink '.session_fl)
         endif
+    elseif !empty($VIRTUAL_ENV)
+        execute 'filter /\.py/ browse oldfiles'
+    else
+        execute 'browse oldfiles'
     endif
 endfunction
 
+" LoadSession or Open :browse oldfiles if no args were provided
+" The 'nested' before call allows nested autocmds, important for
+" syntax detection etc.
 au VimLeavePre * call SaveSession()
-au VimEnter * call LoadSession()
+au VimEnter * nested call LoadSession()
+
 
 " Automatically open, but do not go to (if there are errors) the quickfix /
 " location list window, or close it when is has become empty.

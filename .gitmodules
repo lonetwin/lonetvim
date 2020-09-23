@@ -34,10 +34,6 @@
 	path = bundle/vim-rsi
 	url = git://github.com/tpope/vim-rsi.git
 	ignore = untracked
-[submodule "bundle/auto-pairs"]
-	path = bundle/auto-pairs
-	url = git@github.com:jiangmiao/auto-pairs.git
-	ignore = untracked
 [submodule "bundle/vim-fugitive"]
 	path = bundle/vim-fugitive
 	url = git@github.com:tpope/vim-fugitive.git
@@ -45,10 +41,6 @@
 [submodule "bundle/vim-git"]
 	path = bundle/vim-git
 	url = git@github.com:tpope/vim-git.git
-	ignore = untracked
-[submodule "bundle/vim-virtualenv"]
-	path = bundle/vim-virtualenv
-	url = git@github.com:jmcantrell/vim-virtualenv.git
 	ignore = untracked
 [submodule "bundle/indentpython.vim"]
 	path = bundle/indentpython.vim
@@ -82,3 +74,15 @@
 [submodule "bundle/vim-jinja"]
 	path = bundle/vim-jinja
 	url = git://github.com/lepture/vim-jinja.git
+[submodule "bundle/editorconfig-vim"]
+	path = bundle/editorconfig-vim
+	url = git@github.com:editorconfig/editorconfig-vim.git
+[submodule "bundle/tagbar"]
+	path = bundle/tagbar
+	url = git@github.com:majutsushi/tagbar.git
+[submodule "bundle/auto-pairs"]
+	path = bundle/auto-pairs
+	url = git@github.com:jiangmiao/auto-pairs.git
+[submodule "bundle/ale"]
+	path = bundle/ale
+	url = git@github.com:dense-analysis/ale.git
