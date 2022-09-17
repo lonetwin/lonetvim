@@ -86,3 +86,9 @@
 [submodule "bundle/ale"]
 	path = bundle/ale
 	url = git@github.com:dense-analysis/ale.git
+[submodule "pack/tpope/start/vim-unimpaired"]
+	path = pack/tpope/start/vim-unimpaired
+	url = git@github.com:tpope/vim-unimpaired.git
+[submodule "bundle/vim-readonly"]
+	path = bundle/vim-readonly
+	url = git@github.com:Xvezda/vim-readonly.git

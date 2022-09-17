@@ -5,12 +5,6 @@
 " Initialization stuff
 " ====================
 
-if !empty($VIRTUAL_ENV)
-    :python3 import os
-    :python3 activate_this = os.path.join(os.environ.get('VIRTUAL_ENV'), 'bin', 'activate_this.py')
-    :python3 exec(compile(open(activate_this).read(), activate_this, 'exec'), {'__file__': activate_this})
-endif
-
 " Call pathogen
 let g:pathogen_disabled = []
 call pathogen#infect()
@@ -20,9 +14,6 @@ syntax on
 
 " Turn on filetype detection, plugin loading and indent
 filetype plugin indent on
-
-" Load matchit plugin
-packadd! matchit
 
 " Customization options
 " =====================
@@ -43,9 +34,9 @@ set scrolloff=5                 " The offset at which we start scrolling
 set splitright                  " Default vsplit to the right
 set warn                        " Give a warning message when a shell command is used while the
                                 " buffer has been changed.
-if &term =~ '256color'          " Disable Background Color Erase (BCE) so that color schemes render
-    set t_ut=                   " properly when inside 256-color tmux and GNU screen. see also
-endif                           " http://snk.tuxfamily.org/log/vim-256color-bce.html
+" if &term =~ '256color'          " Disable Background Color Erase (BCE) so that color schemes render
+"     set t_ut=                   " properly when inside 256-color tmux and GNU screen. see also
+" endif                           " http://snk.tuxfamily.org/log/vim-256color-bce.html
 
 " editing behavior
 set textwidth=80                  " Set a default textwidth
@@ -54,12 +45,15 @@ set backspace=eol,start,indent    " Backspace over eol, start of line and indent
 set nostartofline                 " Don't move cursor to first non-blank position when jumping with
                                   " commands like gg
 set cindent                       " Autoindent using cindent'ing rules (better than autoindent or
-                                  " smartindent but less flexible than indentexpr)
+                                  " smartindent but less flexible than setting indentexpr (which
+                                  " might get set by plugins, in which case this is overriden))
 set tabstop=8                     " Tabs (ASCII 0x09) are always 8 characters !!!
 set expandtab                     " Use spaces instead of tabs for indentation
 set smarttab                      " ...but do it smartly. ":help st" for more info
 set preserveindent                " ...however, don't mess with existing indents
-set softtabstop=4 shiftwidth=4    " ...and use 4 spaces at at time to fill in tabbed indent levels
+set softtabstop=4 shiftwidth=4    " ...and use 4 spaces at a time to fill in tabbed indent levels
+set shiftround                    " ...and round indent to a multiple of shiftwidth
+                                  " (useful while in moving blocks with < >)
 set selection=exclusive           " In visual mode, do not select character under cursor
 set showmatch                     " Show matching parens/brackets
 set nojoinspaces                  " When joining lines insert only 1 space after a '.' or '?' or '!'
@@ -68,12 +62,16 @@ set pastetoggle=<F2>              " Mapping to take care of disabling ai and si 
 set clipboard=unnamedplus,unnamed " Make the contents of the yank/copy/deleted text available to the
                                   " X clipboard
 set encoding=utf-8
+set mouse=a                       " Enable the use of mouse in all modes
+set virtualedit=block             " Allow placing the cursor where there are no characters
+                                  " (eg: within tabs or past EOL), during block selection
 
 " search behavior
 set incsearch                   " Show the matches as we type them out
 set hlsearch                    " Highlight all matches of the last search pattern
-set ignorecase                  " Ignore case in search pattern
+set smartcase                   " Ignore case in search pattern if pattern is lowercase
 set shortmess-=S                " Show search count message when searching
+set cscopetag                   " `:tag` should use cscope db
 
 " history and backup
 set history=100                 " Keep command history
@@ -94,6 +92,8 @@ set thesaurus+=./mthesaur.txt            " Add a thesaurus (CTRL-X_CTRL_T comple
 set wildignore+=*.swp,*.pyc,*.o,*.pdf    " In command-mode, skip over these when completing paths
 set wildignore+=*.ico,*.png,*.jpg,*.gif
 set wildignore+=.git/*
+set wildignore+=**/__pycache__/**
+
 set wildmenu                             " In command-mode, show a 'menu' for completion
 set wildmode=longest:full,full           " In command-mode, complete until the longest common
                                          " prefix and show menu of full matches, then cycle thru'
@@ -104,7 +104,8 @@ set infercase                            " Infer case for completion. Needed bec
                                          " ignorecase for searches
 
 " Other options
-set cryptmethod=blowfish2       " default encryption method to use with -x
+set cryptmethod=blowfish2                " default encryption method to use with -x
+set hidden
 
 " Global variables
 " ================
@@ -125,6 +126,9 @@ let g:pep8_comment_text_width = 72
 map j gj
 map k gk
 
+" Vertical sfind
+cabbrev vsf vert sfind
+
 " Remap keystroke for switch to Ex-mode (which is never used) to quit all which is used more
 " frequently than never
 map Q :qa<CR>
@@ -133,7 +137,10 @@ command -nargs=0 -bang Q qa
 " Remap 'only window' to split in tab
 map <C-W>o :tab split<CR>
 
-" execute macro stored in register q (qq to start recording)
+" Like gf, but in a vertical split
+map vgf <C-W><C-f><C-W>L
+
+" execute macro stored in register q (qq to start recording, qqq to clear)
 nnoremap <Space> @q
 
 " Toggle line numbers
@@ -167,7 +174,7 @@ tnoremap <Esc> <C-\><C-n>
 runtime! ftplugin/man.vim
 
 " matchit plugin packaged with the default vim
-runtime! macros/matchit
+packadd! matchit
 
 
 " Plugin options
@@ -177,14 +184,15 @@ runtime! macros/matchit
 " - don't look for closing pair beyond current line
 let g:AutoPairsMultilineClose = 0
 let g:AutoPairsShortcutFastWrap = "<C-e>"
+au FileType python let b:AutoPairs = AutoPairsDefine({"b'": "'", "f'": "'", "r'": "'", 'b"': '"', 'f"': '"', 'r"': '"'})
+au FileType markdown let b:AutoPairs = AutoPairsDefine({"[": "]()"})
 
 " cbackup
 let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
 let g:backup_purge=20
 
 " SuperTab
-let g:SuperTabDefaultCompletionType = 'context'
-let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
+let g:SuperTabDefaultCompletionType = '<c-x><c-o>'
 let g:SuperTabRetainCompletionDuration = 'completion'
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 1
@@ -199,14 +207,31 @@ autocmd FileType *
 let g:jedi#show_call_signatures = 2
 
 " don't modify completeopt to menuone,longest,preview
-let g:jedi#auto_vim_configuration = 0
+autocmd FileType python setlocal completeopt-=preview suffixesadd=.py
+" let g:jedi#auto_vim_configuration = 0
 
 " use tabs for go-to/show-definition/related-names
-let g:jedi#use_tabs_not_buffers = 1
+" let g:jedi#use_tabs_not_buffers = 1
 
 " ale
+let g:ale_linters = {
+            \ 'python': ['flake8', 'mypy', 'jedils']
+            \ }
+let g:ale_fixers = {
+            \ 'python': ['black', 'isort', 'remove_trailing_lines', 'trim_whitespace']
+            \}
+let g:ale_virtualenv_dir_name = ['.venv', '.env_python3.6', '.env_python3.8', '.env_python2.7']
 let g:ale_completion_enabled = 1
-
+let g:ale_pattern_options = {'/tmp/.*\.py$': {'ale_enabled': 0}}
+let g:ale_list_vertical = 1
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '〜'
+let g:ale_echo_msg_format = "%linter%:%severity%:%code: %%s "
+if empty($ALE_FIX_ON_SAVE_IGNORE)
+    let g:ale_fix_on_save = 1
+endif
+" mapping to toggle ALE on buffer
+nmap <silent> <C-a> <Plug>(ale_toggle_buffer)
 
 " taglist
 " - close when taglist is the only open window
@@ -244,11 +269,12 @@ function! LightlineFugitive()
     return exists('*fugitive#head') ? 'λ ' . (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
 endfunction
 
-
 " editorconfig
 let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
 let g:EditorConfig_max_line_indicator = "exceeding"
 
+" vim-readonly
+let g:readonly_python = 0
 
 " Autocommands
 " ============
@@ -269,19 +295,65 @@ augroup localconfig
 
     " HACKON_ENV specific updates
     if !empty($HACKON_ENV)
+        let s:path_updated = 0
+        " autocmd BufNewFile,BufReadPre * call UpdateForHackonEnv()
         autocmd VimEnter * call UpdateForHackonEnv()
+        autocmd BufNewFile * call CheckPath()
         function! UpdateForHackonEnv()
+            if s:path_updated == 1
+                return
+            endif
+
             " convenience to lookup python code just by filename.
             " Here because needs to be set even when !argc for findfile() to work
             setlocal suffixesadd=.py
 
+            " Protect virtualenv files
+            if index(g:readonly_paths, 'python\d+') == -1
+                call extend(g:readonly_paths, ['python\d\+'])
+            endif
+
             " Update path for env
-            set path=.,,$HACKON_ENV/src/**/
+            " - source dirs
+            if isdirectory($HACKON_ENV . '/src/')
+                set path=.,,$HACKON_ENV/src/**/
+            elseif isdirectory($HACKON_ENV . '/' . expand('%:h'))
+                let &path = '.,,' . $HACKON_ENV .  '/' . expand('%:h') . '/**/'
+            endif
+            " - tests dirs
+            if isdirectory($HACKON_ENV . '/tests/')
+                " let &path = &path . ',' . $HACKON_ENV . '/tests/**/'
+                set path+=$HACKON_ENV/tests/**/
+            endif
+            " - packages installed in editable mode
             if !empty($VIRTUAL_ENV)
-                let additional_path = systemlist("grep '^/' " . glob('$VIRTUAL_ENV/**/_virtualenv_path_extensions.pth'))
+                let additional_path = systemlist("grep '^/' " . glob('$VIRTUAL_ENV/**/*.pth'))
                 if !empty(additional_path)
                     let &path = &path . ',' . join(additional_path, "/**/,") . '/**/'
                 endif
+            endif
+            " - custom paths
+            if !empty($VIM_SEARCH_PATH)
+                set path+=$VIM_SEARCH_PATH
+            endif
+            let s:path_updated = 1
+        endfunction
+
+        function! CheckPath()
+            if s:path_updated == 0
+                call UpdateForHackonEnv()
+            endif
+            let filename = expand("<afile>")
+            if filereadable(filename)
+                return
+            endif
+            let matches = findfile(filename, &path, -1)
+            if empty(matches)
+                return
+            elseif matches->len() == 1
+                call feedkeys(":edit " . matches[0]. "\<CR>", "t")
+            else
+                call feedkeys(":find " . filename . "\<Tab>\<Tab>", "t")
             endif
         endfunction
     endif
@@ -296,11 +368,22 @@ augroup localconfig
         endif
       endfunction
 
+    " WSL specific
+    if !empty($WSLENV)
+        " WSL yank support
+        let s:clip = exepath('clip.exe')
+        if executable(s:clip)
+            augroup WSLYank
+                autocmd!
+                autocmd TextYankPost * call system(s:clip, v:event.regcontents) | echo "Use Shift+Ins to Paste!"
+            augroup END
+        endif
+    endif
+
     " Filetype specific
     " - make files
-    autocmd BufNewFile,BufRead Makefile*
-        \ setlocal noexpandtab |
-        \ setlocal softtabstop=0
+    autocmd Filetype make
+        \ setlocal noexpandtab softtabstop=0
 
     " - spec files
     autocmd BufNewFile,BufRead *.spec
@@ -314,20 +397,29 @@ augroup localconfig
     " - nginx files
     autocmd BufNewFile,BufRead *nginx/* set ft=nginx
 
+    " - typescript files
+    autocmd BufNewFile,BufRead *.tsx set ft=typescript
     " python files
     autocmd BufNewFile *.py
         \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
 
-    " - html/templates -- turn off textwidth
-    autocmd BufNewFile,BufRead *.pt,*.html set textwidth=0
-
     " - treat .zcml as xml
     autocmd BufNewFile,BufRead *.zcml set ft=xml
+
+    " - html/templates -- turn off textwidth
+    autocmd FileType html set textwidth=0
+
+    " - YAML files
+    autocmd FileType yaml setlocal tabstop=2 softtabstop=2 shiftwidth=2
 
     " - set custom formatprg for some filetypes
     " Note to self: vim is not too good at detecting json files, make sure ft is set!
     autocmd Filetype json setlocal formatprg=python\ -m\ json.tool
-    autocmd Filetype xml setlocal formatprg=xmllint\ --format\ -
+
+    " - html/templates -- turn off textwidth & wrapping and set equalprg and formatprg to xmllint
+    autocmd FileType html
+        \ set textwidth=0 nowrap tabstop=2 softtabstop=2 shiftwidth=2 smartindent
+
 
     " - set up omni-completion if a specific plugin doesn't already exist for
     "   the filetype
@@ -391,19 +483,6 @@ function SaveSession()
 endfunction
 
 function LoadSession()
-    if argc() != 0
-        let filename=expand('%')
-        if !empty($VIRTUAL_ENV) && !filereadable(filename)
-            let matches = findfile(filename, &path, -1)
-            if matches->len() == 1
-                exe "find " . filename
-            else
-                call feedkeys(":find " . filename . "\<Tab>\<Tab>", "t")
-            endif
-        endif
-        return
-    endif
-
     let session_fl = getcwd() . '/.session.vim'
     if !empty($HACKON_ENV) && filereadable('~/tmp/vim/' . fnamemodify($HACKON_ENV, ':t') . '.session.vim')
         session_fl = '~/tmp/vim/' . fnamemodify($HACKON_ENV, ':t') . '.session.vim'
@@ -418,10 +497,6 @@ function LoadSession()
         if load_sesssion == 3 || load_sesssion == 4
             call system('unlink '.session_fl)
         endif
-    elseif !empty($VIRTUAL_ENV)
-        execute 'filter /\.py/ browse oldfiles'
-    else
-        execute 'browse oldfiles'
     endif
 endfunction
 
@@ -442,3 +517,7 @@ au VimEnter * nested call LoadSession()
 " seem to happen.
 autocmd QuickFixCmdPost [^l]* nested cwindow
 autocmd QuickFixCmdPost    l* nested lwindow
+
+" This is part of |defaults.vim| but on wsl, seems like this isn't loaded
+command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+    \ | diffthis | wincmd p | diffthis
