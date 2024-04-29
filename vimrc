@@ -17,23 +17,38 @@ filetype plugin indent on
 
 " Customization options
 " =====================
+"
+" terminal options |'terminal-options'|
+let &t_Cs = "\e[4:3m"   " undercurl mode
+let &t_Ce = "\e[4:0m"   " undercurl and underline end
+let &t_Us = "\e[4:2m"   " double underline mode
+let &t_ds = "\e[4:4m"   " dotted underline mode
+let &t_Ds = "\e[4:5m"   " dashed underline mode
 
 " visual options
-set background=dark             " Makes syntax highlighting lighter.
-if has('gui_running')
-    colorscheme desert
-else
-    exe empty($TRANSPARENT_TERM) ? 'colorscheme busierbee' : 'colorscheme transparent'
-endif
+" if has('gui_running')
+"     colorscheme desert
+" else
+"     exe empty($TRANSPARENT_TERM) ? 'colorscheme busierbee' : 'colorscheme transparent'
+" endif
+" runtime colors/colormod.vim
+" set background=dark             " Makes syntax highlighting lighter. (needs to come after colorscheme
+"                                 " (https://github.com/mhinz/vim-janah/issues/2#issuecomment-184216367))
+" set termguicolors
+colorscheme colormod            " Use our own colorscheme built on top of busierbee (in ./colors)
+set numberwidth=1               " The minimum width for the number column
 set laststatus=2                " Always show a statusbar.
 set noshowmode                  " Hide the line showing the mode since that's part of our statusbar
 set modeline                    " Respect the file's 'modeline' if it has been defined
 set title                       " Set the terminal title
 set titleold=                   " Don't default terminal title to "Thanks for flying vim" on exit
 set scrolloff=5                 " The offset at which we start scrolling
-set splitright                  " Default vsplit to the right
+set splitright                  " Default vsplit to the right of current window
+set splitbelow                  " Default split to the bottom of current window
 set warn                        " Give a warning message when a shell command is used while the
                                 " buffer has been changed.
+set fillchars+=vert:│           " Use a vertical bar for vertical splits
+
 " if &term =~ '256color'          " Disable Background Color Erase (BCE) so that color schemes render
 "     set t_ut=                   " properly when inside 256-color tmux and GNU screen. see also
 " endif                           " http://snk.tuxfamily.org/log/vim-256color-bce.html
@@ -65,13 +80,15 @@ set encoding=utf-8
 set mouse=a                       " Enable the use of mouse in all modes
 set virtualedit=block             " Allow placing the cursor where there are no characters
                                   " (eg: within tabs or past EOL), during block selection
+set showcmd                       " Show useful normal mode commands/info in the status line
 
 " search behavior
 set incsearch                   " Show the matches as we type them out
 set hlsearch                    " Highlight all matches of the last search pattern
-set smartcase                   " Ignore case in search pattern if pattern is lowercase
+set ignorecase smartcase        " Ignore case in search pattern if pattern is lowercase
 set shortmess-=S                " Show search count message when searching
 set cscopetag                   " `:tag` should use cscope db
+set csto=1                      " ...but lookup tags before cscope db
 
 " history and backup
 set history=100                 " Keep command history
@@ -84,18 +101,22 @@ set undolevels=1000             " ...here's how many undos to save
 set undoreload=10000            " ...here's the number of lines to save for undo
 set viminfo=%,'50,<50           " Remember the buffer list (%), 50 previously edited files (')
                                 " and 50 lines for each register (<)
+" diff
+set diffopt=internal,indent-heuristic,algorithm:patience,filler,hiddenoff
 
 " Completion options
+set complete=.,w,b,u,t,i,kspell,k,s
 set spell spelllang=en_us                " We no how to spelle (highlight and CTRL-X_S completion)
 set dictionary+=/usr/share/dict/words    " Add a dictionary (CTRL-X_CTRL_D completion)
-set thesaurus+=./mthesaur.txt            " Add a thesaurus (CTRL-X_CTRL_T completion)
+set thesaurus+=./thesaurus_pkg/thesaurs.txt  " Add a thesaurus (CTRL-X_CTRL_T completion)
 set wildignore+=*.swp,*.pyc,*.o,*.pdf    " In command-mode, skip over these when completing paths
 set wildignore+=*.ico,*.png,*.jpg,*.gif
 set wildignore+=.git/*
 set wildignore+=**/__pycache__/**
 
 set wildmenu                             " In command-mode, show a 'menu' for completion
-set wildmode=longest:full,full           " In command-mode, complete until the longest common
+set wildoptions=pum,tagfile
+set wildmode=longest:full,lastused,full  " In command-mode, complete until the longest common
                                          " prefix and show menu of full matches, then cycle thru'
                                          " menu of matches
 set completeopt=menuone,longest,noselect " In insert-mode, always show a menu, complete until the
@@ -131,11 +152,17 @@ cabbrev vsf vert sfind
 
 " Remap keystroke for switch to Ex-mode (which is never used) to quit all which is used more
 " frequently than never
-map Q :qa<CR>
-command -nargs=0 -bang Q qa
+map Q <Cmd>qa<CR>
+command -nargs=0 -bang Q qa<bang>
 
 " Remap 'only window' to split in tab
-map <C-W>o :tab split<CR>
+map <C-W>o <Cmd>tab split<CR>
+" Remap 'move cursor to top-left split' to 'move to new tab'
+map <C-W>t <C-W>T
+" Map for create new vertical split and execute `-` from vim-vinegar
+map <C-W>- <Cmd>vnew<CR>-
+" Map for create new vertical split
+map <C-W>V <Cmd>vnew<CR>
 
 " Like gf, but in a vertical split
 map vgf <C-W><C-f><C-W>L
@@ -144,15 +171,18 @@ map vgf <C-W><C-f><C-W>L
 nnoremap <Space> @q
 
 " Toggle line numbers
-map <Leader>n :set number! relativenumber!<CR>
+" map <Leader>sn <Cmd>set number! cursorline<CR>
+map <Leader>sn <Cmd>echo("Use yon + yox !")<CR>
 
 " Toggle list
-map <Leader>l :set list!<CR>
+" map <Leader>l <Cmd>set list!<CR>
+map <Leader>l <Cmd>echo("Use yol !")<CR>
 
 " Keep search matches in the middle of the screen
+" This unfortunately leads to the search count display being lost
 " http://vimrcfu.com/snippet/175
-nnoremap n nzz
-nnoremap N Nzz
+" nnoremap n nzz
+" nnoremap N Nzz
 
 " Use <C-L> to clear the highlighting of :set hlsearch.
 if maparg('<C-L>', 'n') ==# ''
@@ -160,11 +190,13 @@ if maparg('<C-L>', 'n') ==# ''
 endif
 
 " write with sudo using :w!!
-cmap w!! w !sudo tee > /dev/null %
+cmap w!! <Cmd>echo("Use Sudowrite/Sudoedit instead")<CR>
 
 " Esc for going to Normal mode from terminal mode
 tnoremap <Esc> <C-\><C-n>
 
+" Search on word boundary
+nnoremap <leader>/ /\<\><left><left>
 
 " Plugins
 " =======
@@ -192,7 +224,10 @@ let g:backup_directory=expand("$HOME/tmp/vimbkup/cbackup")
 let g:backup_purge=20
 
 " SuperTab
-let g:SuperTabDefaultCompletionType = '<c-x><c-o>'
+" let g:SuperTabDefaultCompletionType = '<c-x><c-o>'
+let g:SuperTabDefaultCompletionType = 'context'
+let g:SuperTabContextDefaultCompletionType = '<c-x><c-p>'
+let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
 let g:SuperTabRetainCompletionDuration = 'completion'
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 1
@@ -205,6 +240,9 @@ autocmd FileType *
 " jedi
 " show call signatures in the command line instead of pop-up
 let g:jedi#show_call_signatures = 2
+let g:jedi#smart_auto_mappings = 1  " smart import completion
+
+
 
 " don't modify completeopt to menuone,longest,preview
 autocmd FileType python setlocal completeopt-=preview suffixesadd=.py
@@ -214,24 +252,28 @@ autocmd FileType python setlocal completeopt-=preview suffixesadd=.py
 " let g:jedi#use_tabs_not_buffers = 1
 
 " ale
+let g:ale_virtualenv_dir_name = ['.venv', '.env_python3.6', '.env_python3.8', '.env_python2.7']
 let g:ale_linters = {
-            \ 'python': ['flake8', 'mypy', 'jedils']
+            \ 'python': ['isort', 'black', 'flake8', 'mypy', 'jedils']
             \ }
 let g:ale_fixers = {
-            \ 'python': ['black', 'isort', 'remove_trailing_lines', 'trim_whitespace']
+            \ 'python': ['remove_trailing_lines', 'trim_whitespace', 'autoflake', 'isort', 'black']
             \}
-let g:ale_virtualenv_dir_name = ['.venv', '.env_python3.6', '.env_python3.8', '.env_python2.7']
-let g:ale_completion_enabled = 1
+
+let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
+let g:ale_python_black_options = '--line-length=100'
+let g:ale_completion_enabled = 0
+let g:ale_disable_lsp = 1
 let g:ale_pattern_options = {'/tmp/.*\.py$': {'ale_enabled': 0}}
 let g:ale_list_vertical = 1
 let g:ale_sign_error = '✗'
-let g:ale_sign_warning = '〜'
+let g:ale_sign_warning = '~'
 let g:ale_echo_msg_format = "%linter%:%severity%:%code: %%s "
 if empty($ALE_FIX_ON_SAVE_IGNORE)
     let g:ale_fix_on_save = 1
 endif
-" mapping to toggle ALE on buffer
-nmap <silent> <C-a> <Plug>(ale_toggle_buffer)
+" mapping to toggle ALE on buffer C-a is "increment number"
+" nmap <silent> <C-a> <Plug>(ale_toggle_buffer)
 
 " taglist
 " - close when taglist is the only open window
@@ -276,6 +318,9 @@ let g:EditorConfig_max_line_indicator = "exceeding"
 " vim-readonly
 let g:readonly_python = 0
 
+" vim-gutentags
+let g:gutentags_cache_dir = expand('~/.cache/vim-tags')
+
 " Autocommands
 " ============
 
@@ -293,55 +338,75 @@ augroup localconfig
     " - let terminal resize scale the internal windows
     autocmd VimResized * :wincmd =
 
+    " Cursor Stuff
+    " - Reference chart of values:
+    "   0: blinking block.
+    "   1: blinking block (default).
+    "   2: steady block.
+    "   3: blinking underline.
+    "   4: steady underline.
+    "   5: blinking bar (xterm).
+    "   6: steady bar (xterm).
+    let &t_SI = "\e[2 q"   " Start Insert mode
+    let &t_SR = "\e[6 q"   " Start Insert mode
+    let &t_EI = "\e[0 q"   " Exit insert mode
+    " - set cursorline in normal mode when multiple windows are open
+    autocmd WinEnter,BufWinEnter,InsertLeave * exe winnr('$') > 1 ? "setlocal cursorline" : "setlocal nocursorline"
+    autocmd WinLeave,BufWinLeave,InsertEnter *  setlocal nocursorline
+
+    " - reset cursor when leaving vim
+    autocmd VimLeave * silent !echo -ne "\e[0 q"
+
     " HACKON_ENV specific updates
     if !empty($HACKON_ENV)
         let s:path_updated = 0
+        augroup hackonenv
+            autocmd!
+            autocmd VimEnter * call s:UpdateForHackonEnv()
+            autocmd BufNewFile * call s:CheckPath()
+        augroup END
         " autocmd BufNewFile,BufReadPre * call UpdateForHackonEnv()
-        autocmd VimEnter * call UpdateForHackonEnv()
-        autocmd BufNewFile * call CheckPath()
-        function! UpdateForHackonEnv()
+        " autocmd VimEnter * call UpdateForHackonEnv()
+        " autocmd BufNewFile * call CheckPath()
+        function! s:UpdateForHackonEnv()
             if s:path_updated == 1
                 return
             endif
 
             " convenience to lookup python code just by filename.
             " Here because needs to be set even when !argc for findfile() to work
-            setlocal suffixesadd=.py
+            set suffixesadd=.py
 
             " Protect virtualenv files
-            if index(g:readonly_paths, 'python\d+') == -1
-                call extend(g:readonly_paths, ['python\d\+'])
+            if exists("g:readonly_paths") && index(g:readonly_paths, 'python\d+') == -1
+                call extend(g:readonly_paths, g:ale_virtualenv_dir_name)
             endif
 
             " Update path for env
-            " - source dirs
-            if isdirectory($HACKON_ENV . '/src/')
-                set path=.,,$HACKON_ENV/src/**/
-            elseif isdirectory($HACKON_ENV . '/' . expand('%:h'))
-                let &path = '.,,' . $HACKON_ENV .  '/' . expand('%:h') . '/**/'
-            endif
-            " - tests dirs
-            if isdirectory($HACKON_ENV . '/tests/')
-                " let &path = &path . ',' . $HACKON_ENV . '/tests/**/'
-                set path+=$HACKON_ENV/tests/**/
-            endif
-            " - packages installed in editable mode
-            if !empty($VIRTUAL_ENV)
-                let additional_path = systemlist("grep '^/' " . glob('$VIRTUAL_ENV/**/*.pth'))
-                if !empty(additional_path)
-                    let &path = &path . ',' . join(additional_path, "/**/,") . '/**/'
-                endif
-            endif
+            let s:paths = [".,"]
+
+            " - git dirs
+            " let git_toplevel_dirs = systemlist('for i in $(git ls-files); do fn=${i%%/*}; [[ -d ${fn} ]] && echo ${fn}; done |sort -u')
+            " XXX `silent` to prevent messages reporting the end of execution
+            silent let git_toplevel_dirs = systemlist('dirname $(git ls-files)|grep -v "\.$"|sort -u')
+            " silent let git_toplevel_dirs = systemlist('dirname $(git ls-files)|grep -v "\."|sort -u|' . shellescape('-'))
+            for dirname in git_toplevel_dirs
+                call add(s:paths, dirname . '/**/')
+            endfor
+
+            let &path = join(s:paths, ',')
+
             " - custom paths
             if !empty($VIM_SEARCH_PATH)
                 set path+=$VIM_SEARCH_PATH
             endif
+
             let s:path_updated = 1
         endfunction
 
-        function! CheckPath()
+        function! s:CheckPath()
             if s:path_updated == 0
-                call UpdateForHackonEnv()
+                call s:UpdateForHackonEnv()
             endif
             let filename = expand("<afile>")
             if filereadable(filename)
@@ -349,9 +414,12 @@ augroup localconfig
             endif
             let matches = findfile(filename, &path, -1)
             if empty(matches)
+                let matches = finddir(filename, &path, -1)
+            endif
+            if empty(matches)
                 return
             elseif matches->len() == 1
-                call feedkeys(":edit " . matches[0]. "\<CR>", "t")
+                call feedkeys(":args " . matches[0]. "\<CR>", "t")
             else
                 call feedkeys(":find " . filename . "\<Tab>\<Tab>", "t")
             endif
@@ -361,7 +429,7 @@ augroup localconfig
     " mkdir -p on write
     autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
       function! s:auto_mkdir(dir, force)
-        if !isdirectory(a:dir)
+        if &diff && !isdirectory(a:dir)
             \ && (a:force
             \       || input("'" . a:dir . "' does not exist. Create? [y/N] ") =~? '^y\%[es]$')
           call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
@@ -381,10 +449,11 @@ augroup localconfig
     endif
 
     " Filetype specific
-    " - make files
-    autocmd Filetype make
-        \ setlocal noexpandtab softtabstop=0
+    " - avro files
+    autocmd BufNewFile,BufRead *.avsc set ft=json
 
+    " - make files
+    autocmd Filetype make setlocal noexpandtab softtabstop=0
     " - spec files
     autocmd BufNewFile,BufRead *.spec
         \ let packager = "Steven Fernandez <lonetwin@fedoraproject.org>"
@@ -397,17 +466,18 @@ augroup localconfig
     " - nginx files
     autocmd BufNewFile,BufRead *nginx/* set ft=nginx
 
+    " - log files
+    autocmd BufNewFile,BufRead *.log set nospell readonly
+
     " - typescript files
     autocmd BufNewFile,BufRead *.tsx set ft=typescript
-    " python files
-    autocmd BufNewFile *.py
-        \ 0put =\"#!/usr/bin/env python\<nl># -*- coding: utf-8 -*-\<nl>\"|$
 
     " - treat .zcml as xml
     autocmd BufNewFile,BufRead *.zcml set ft=xml
-
-    " - html/templates -- turn off textwidth
-    autocmd FileType html set textwidth=0
+    autocmd Filetype xml
+        \ setlocal formatprg=xmllint\ --format\ --recover\ -\ 2>/dev/null   |
+        \ setlocal equalprg=xmllint\ --format\ --recover\ -\ 2>/dev/null    |
+        \ setlocal textwidth=0 nowrap tabstop=2 softtabstop=2 shiftwidth=2
 
     " - YAML files
     autocmd FileType yaml setlocal tabstop=2 softtabstop=2 shiftwidth=2
@@ -416,10 +486,9 @@ augroup localconfig
     " Note to self: vim is not too good at detecting json files, make sure ft is set!
     autocmd Filetype json setlocal formatprg=python\ -m\ json.tool
 
-    " - html/templates -- turn off textwidth & wrapping and set equalprg and formatprg to xmllint
+    " - html/templates
     autocmd FileType html
         \ set textwidth=0 nowrap tabstop=2 softtabstop=2 shiftwidth=2 smartindent
-
 
     " - set up omni-completion if a specific plugin doesn't already exist for
     "   the filetype
@@ -455,6 +524,14 @@ augroup END
 " mounted paths from multiple systems and need to keep a copy of the same file
 " sync'd on all systems
 command -nargs=1 -complete=dir DuplicateAt autocmd BufWritePost * w! <args>%
+
+" HTML formatting
+command -range=% FixHtml :<line1>,<line2>s/> *</>\r</g<bar>normal gg=G
+
+" This is part of |defaults.vim| but on wsl, seems like this isn't loaded
+command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+    \ | diffthis | wincmd p | diffthis
+
 
 " Custom functions
 " ================
@@ -503,9 +580,8 @@ endfunction
 " LoadSession or Open :browse oldfiles if no args were provided
 " The 'nested' before call allows nested autocmds, important for
 " syntax detection etc.
-au VimLeavePre * call SaveSession()
-au VimEnter * nested call LoadSession()
-
+" au VimLeavePre * call SaveSession()
+" au VimEnter * nested call LoadSession()
 
 " Automatically open, but do not go to (if there are errors) the quickfix /
 " location list window, or close it when is has become empty.
@@ -518,6 +594,19 @@ au VimEnter * nested call LoadSession()
 autocmd QuickFixCmdPost [^l]* nested cwindow
 autocmd QuickFixCmdPost    l* nested lwindow
 
-" This is part of |defaults.vim| but on wsl, seems like this isn't loaded
-command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
-    \ | diffthis | wincmd p | diffthis
+
+" Define a function to replace selected lines with Python output using pydo
+" fun! ReplaceWithPythonOutput()
+"     " Save the current visual selection into a variable
+"     let selected_lines = getline("'<", "'>")
+"
+"     " Execute Python command on the selected lines using pydo
+"     let python_output = py3do selected_lines
+"
+"     " Replace the selected lines with the Python output
+"     execute "normal! gv\"_d"  " Delete the selected lines
+"     call setline("'<", python_output)  " Set the Python output as the new content
+" endfun
+"
+" " Create a mapping to trigger the function (e.g., F5 key)
+" vnoremap <F5> :call ReplaceWithPythonOutput()<CR>

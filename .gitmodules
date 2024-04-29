@@ -92,3 +92,30 @@
 [submodule "bundle/vim-readonly"]
 	path = bundle/vim-readonly
 	url = git@github.com:Xvezda/vim-readonly.git
+[submodule "pack/dhruvasagar/start/vim-table-mode"]
+	path = pack/dhruvasagar/start/vim-table-mode
+	url = git@github.com:dhruvasagar/vim-table-mode.git
+[submodule "pack/tpope/start/vim-surround"]
+	path = pack/tpope/start/vim-surround
+	url = git@github.com:tpope/vim-surround.git
+[submodule "pack/kana/start/vim-textobj-user"]
+	path = pack/kana/start/vim-textobj-user
+	url = git@github.com:kana/vim-textobj-user.git
+[submodule "pack/machakann/start/vim-highlightedyank"]
+	path = pack/machakann/start/vim-highlightedyank
+	url = git@github.com:machakann/vim-highlightedyank.git
+[submodule "pack/tpope/start/eunuch"]
+	path = pack/tpope/start/eunuch
+	url = https://tpope.io/vim/eunuch.git
+[submodule "pack/tpope/start/vim-rhubarb"]
+	path = pack/tpope/start/vim-rhubarb
+	url = git@github.com:tpope/vim-rhubarb.git
+[submodule "pack/jeetsukumaran/start/vim-pythonsense"]
+	path = pack/jeetsukumaran/start/vim-pythonsense
+	url = git@github.com:jeetsukumaran/vim-pythonsense.git
+[submodule "pack/github/start/copilot"]
+	path = pack/github/start/copilot
+	url = git@github.com:github/copilot.vim
+[submodule "bundle/vim-log-highlighting"]
+	path = bundle/vim-log-highlighting
+	url = git@github.com:MTDL9/vim-log-highlighting.git
