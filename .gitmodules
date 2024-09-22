@@ -4,7 +4,7 @@
 	ignore = untracked
 [submodule "bundle/supertab"]
 	path = bundle/supertab
-	url = git://github.com/ervandew/supertab.git
+	url = git@github.com:ervandew/supertab.git
 	ignore = untracked
 [submodule "bundle/vim-indent-object"]
 	path = bundle/vim-indent-object
@@ -32,7 +32,7 @@
 	ignore = untracked
 [submodule "bundle/vim-rsi"]
 	path = bundle/vim-rsi
-	url = git://github.com/tpope/vim-rsi.git
+	url = git@github.com:tpope/vim-rsi.git
 	ignore = untracked
 [submodule "bundle/vim-fugitive"]
 	path = bundle/vim-fugitive
@@ -70,10 +70,10 @@
 	url = git@github.com:tpope/vim-vinegar.git
 [submodule "bundle/vim-peekaboo"]
 	path = bundle/vim-peekaboo
-	url = git://github.com/junegunn/vim-peekaboo.git
+	url = git@github.com:junegunn/vim-peekaboo.git
 [submodule "bundle/vim-jinja"]
 	path = bundle/vim-jinja
-	url = git://github.com/lepture/vim-jinja.git
+	url = git@github.com/lepture/vim-jinja.git
 [submodule "bundle/editorconfig-vim"]
 	path = bundle/editorconfig-vim
 	url = git@github.com:editorconfig/editorconfig-vim.git
