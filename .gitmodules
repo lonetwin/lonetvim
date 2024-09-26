@@ -73,7 +73,7 @@
 	url = git@github.com:junegunn/vim-peekaboo.git
 [submodule "bundle/vim-jinja"]
 	path = bundle/vim-jinja
-	url = git@github.com/lepture/vim-jinja.git
+	url = git@github.com:lepture/vim-jinja.git
 [submodule "bundle/editorconfig-vim"]
 	path = bundle/editorconfig-vim
 	url = git@github.com:editorconfig/editorconfig-vim.git
