@@ -529,7 +529,7 @@ command -nargs=1 -complete=dir DuplicateAt autocmd BufWritePost * w! <args>%
 command -range=% FixHtml :<line1>,<line2>s/> *</>\r</g<bar>normal gg=G
 
 " This is part of |defaults.vim| but on wsl, seems like this isn't loaded
-command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
     \ | diffthis | wincmd p | diffthis
 
 
