@@ -5,6 +5,7 @@ set background=dark
 
 " Ensure vertical splits are the same color as normal text
 hi VertSplit ctermbg=fg ctermfg=bg
+hi LineNr ctermbg=bg ctermfg=fg
 
 " Fix highlight for Spelling
 hi clear SpellBad
@@ -39,7 +40,7 @@ hi String    cterm=italic gui=italic
 " highlight Visual ctermbg=Brown guibg=Brown
 
 " Gentler SignColumn for ALE Error
-" highlight SignColumn ctermbg=Black guibg=Black
+" highlight SignColumn ctermbg=fg
 highlight clear Error
 highlight Error term=reverse cterm=bold ctermfg=Red ctermbg=Black guifg=Red guibg=Black
 

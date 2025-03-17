@@ -49,9 +49,9 @@ set warn                        " Give a warning message when a shell command is
                                 " buffer has been changed.
 set fillchars+=vert:│           " Use a vertical bar for vertical splits
 
-" if &term =~ '256color'          " Disable Background Color Erase (BCE) so that color schemes render
-"     set t_ut=                   " properly when inside 256-color tmux and GNU screen. see also
-" endif                           " http://snk.tuxfamily.org/log/vim-256color-bce.html
+if &term =~ '256color'          " Disable Background Color Erase (BCE) so that color schemes render
+    set t_ut=                   " properly when inside 256-color tmux and GNU screen. see also
+endif                           " http://snk.tuxfamily.org/log/vim-256color-bce.html
 
 " editing behavior
 set textwidth=80                  " Set a default textwidth
@@ -86,7 +86,7 @@ set showcmd                       " Show useful normal mode commands/info in the
 set incsearch                   " Show the matches as we type them out
 set hlsearch                    " Highlight all matches of the last search pattern
 set ignorecase smartcase        " Ignore case in search pattern if pattern is lowercase
-set shortmess-=S                " Show search count message when searching
+" set shortmess-=S                " Show search count message when searching
 set cscopetag                   " `:tag` should use cscope db
 set csto=1                      " ...but lookup tags before cscope db
 
@@ -179,10 +179,9 @@ map <Leader>sn <Cmd>echo("Use yon + yox !")<CR>
 map <Leader>l <Cmd>echo("Use yol !")<CR>
 
 " Keep search matches in the middle of the screen
-" This unfortunately leads to the search count display being lost
 " http://vimrcfu.com/snippet/175
-" nnoremap n nzz
-" nnoremap N Nzz
+nnoremap n nzz
+nnoremap N Nzz
 
 " Use <C-L> to clear the highlighting of :set hlsearch.
 if maparg('<C-L>', 'n') ==# ''
@@ -296,19 +295,27 @@ autocmd FileType markdown set conceallevel=2
 let g:lightline = {
     \ 'active': {
     \   'left': [['mode', 'paste'],
-    \            ['fugitive', 'virtualenv', 'readonly', 'filename', 'modified']]
-    \   },
-    \   'component': {
-    \       'filename': '%f',
-    \       'virtualenv': empty($VIRTUAL_ENV) ? '' : 'ε ' . fnamemodify($HACKON_ENV, ':t')
-    \   },
-    \   'component_function': {
-    \       'fugitive': 'LightlineFugitive',
-    \   },
+    \            ['fugitive', 'virtualenv', 'readonly', 'relativepath', 'modified', 'searchcount']]
+    \ },
+    \ 'component': {
+    \   'virtualenv': empty($VIRTUAL_ENV) ? '' : 'ε ' . fnamemodify($HACKON_ENV, ':t'),
+    \ },
+    \ 'component_function': {
+    \   'fugitive': 'LightlineFugitive',
+    \   'searchcount': 'LightlineSearchCount'
+    \ }
     \ }
 
 function! LightlineFugitive()
     return exists('*fugitive#head') ? 'λ ' . (fugitive#head() == 'master' ? '(∙)' : fugitive#head()) : ''
+endfunction
+
+function! LightlineSearchCount()
+    if !v:hlsearch
+        return ''
+    endif
+    let s = searchcount()
+    return s.current . '/' . s.total
 endfunction
 
 " editorconfig
