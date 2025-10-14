@@ -38,7 +38,7 @@ else
     endif
 
     if has ("vms")
-	" Section: vms {{{1
+	" Section: vms 
 	"
 	" backup not needed for vms as vms has a full featured filesystem
 	" which includes versioning
@@ -46,7 +46,7 @@ else
 	set nobackup
 	set backupext=-Backup
 
-	" Subsection: s:Do_Purge {{{2
+	" Subsection: s:Do_Purge 
 	"
 	function s:Do_Purge (Doc_Path)
 	    if g:backup_purge > 0
@@ -55,9 +55,9 @@ else
 	endfunction Do_Purge
 
 	autocmd BufWritePre * :call s:Do_Purge (expand ('<afile>:p'))
-      " }}}1
+      " 
     else
-	" Section: not vms {{{1
+	" Section: not vms 
 	"
 	 if ! exists("g:backup_directory")
 	    let g:backup_directory=$HOME . '/.backups'
@@ -67,7 +67,7 @@ else
 	set backup
 	set backupext=;1
 
-	" Subsection: s:Make_Backup_Dir {{{2
+	" Subsection: s:Make_Backup_Dir 
 	"
          function s:Make_Backup_Dir (Path)
 	    if strlen (finddir (a:Path)) == 0
@@ -83,7 +83,7 @@ else
 	    endif
          endfunction Make_Backup_Dir
 
-	" Subsection: s:Get_Version {{{2
+	" Subsection: s:Get_Version 
 	"
          function s:Get_Version (Filename)
 	    return eval (
@@ -92,7 +92,7 @@ else
 		    \ strridx (a:Filename, ";") + 1))
          endfunction s:Get_Version
 
-	" Subsection: s:Version_Compare {{{2
+	" Subsection: s:Version_Compare 
 	"
          function s:Version_Compare (Left, Right)
 	    let l:Left_Ver = s:Get_Version (a:Left)
@@ -104,7 +104,7 @@ else
 			\ : -1
          endfunction s:Version_Compare
 
-	" Subsection: s:Do_Purge {{{2
+	" Subsection: s:Do_Purge 
 	"
          function s:Set_Backup (Backup_Root, Doc_Path, Doc_Name)
 	    let l:Backup_Path = a:Backup_Root . '/' . a:Doc_Path
@@ -126,13 +126,13 @@ else
 	    endif
          endfunction Set_Backup
 
-	 " }}}2
+	 " 
 
          autocmd BufWritePre * :call s:Set_Backup (
 	    \ g:backup_directory,
 	    \ expand ('<afile>:p:h'),
 	    \ expand ('<afile>:p:t'))
-      " }}}1
+      " 
     endif
 
     finish

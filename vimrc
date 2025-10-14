@@ -32,8 +32,8 @@ let &t_Ds = "\e[4:5m"   " dashed underline mode
 "     exe empty($TRANSPARENT_TERM) ? 'colorscheme busierbee' : 'colorscheme transparent'
 " endif
 " runtime colors/colormod.vim
-" set background=dark             " Makes syntax highlighting lighter. (needs to come after colorscheme
-"                                 " (https://github.com/mhinz/vim-janah/issues/2#issuecomment-184216367))
+set background=dark             " Makes syntax highlighting lighter. (needs to come after colorscheme
+                                " (https://github.com/mhinz/vim-janah/issues/2#issuecomment-184216367))
 " set termguicolors
 colorscheme colormod            " Use our own colorscheme built on top of busierbee (in ./colors)
 set numberwidth=1               " The minimum width for the number column
@@ -54,6 +54,8 @@ if &term =~ '256color'          " Disable Background Color Erase (BCE) so that c
 endif                           " http://snk.tuxfamily.org/log/vim-256color-bce.html
 
 " editing behavior
+set exrc secure                   " Enable .vimrc in current directory, but ensure only secure
+                                  " options are set (eg: no write commands, no shell commands, etc.)
 set textwidth=80                  " Set a default textwidth
 set wrap                          " wrap text at textwidth
 set backspace=eol,start,indent    " Backspace over eol, start of line and indents
@@ -106,7 +108,7 @@ set diffopt=internal,indent-heuristic,algorithm:patience,filler,hiddenoff
 
 " Completion options
 set complete=.,w,b,u,t,i,kspell,k,s
-set spell spelllang=en_us                " We no how to spelle (highlight and CTRL-X_S completion)
+set spell " spelllang=en_us                " We no how to spelle (highlight and CTRL-X_S completion)
 set dictionary+=/usr/share/dict/words    " Add a dictionary (CTRL-X_CTRL_D completion)
 set thesaurus+=./thesaurus_pkg/thesaurs.txt  " Add a thesaurus (CTRL-X_CTRL_T completion)
 set wildignore+=*.swp,*.pyc,*.o,*.pdf    " In command-mode, skip over these when completing paths
@@ -197,6 +199,17 @@ tnoremap <Esc> <C-\><C-n>
 " Search on word boundary
 nnoremap <leader>/ /\<\><left><left>
 
+" Toggle copilot
+function! ToggleCopilot()
+    if exists('g:copilot_enabled') && g:copilot_enabled
+        execute "Copilot disable"
+    else
+        execute "Copilot enable"
+    endif
+endfunction
+inoremap <C-Q> <Cmd>call ToggleCopilot()<CR>
+imap <C-L> <Plug>(copilot-accept-word)
+
 " Plugins
 " =======
 " Load packaged plugins we need always, irrespective of filetype
@@ -230,7 +243,7 @@ let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
 let g:SuperTabRetainCompletionDuration = 'completion'
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 1
-let g:SuperTabCrMapping = 1
+" let g:SuperTabCrMapping = 1
 autocmd FileType *
     \ if &omnifunc != '' |
     \   call SuperTabChain(&omnifunc, "<c-p>") |
@@ -241,36 +254,37 @@ autocmd FileType *
 let g:jedi#show_call_signatures = 2
 let g:jedi#smart_auto_mappings = 1  " smart import completion
 
-
-
 " don't modify completeopt to menuone,longest,preview
 autocmd FileType python setlocal completeopt-=preview suffixesadd=.py
-" let g:jedi#auto_vim_configuration = 0
+let g:jedi#auto_vim_configuration = 0
 
 " use tabs for go-to/show-definition/related-names
 " let g:jedi#use_tabs_not_buffers = 1
 
 " ale
-let g:ale_virtualenv_dir_name = ['.venv', '.env_python3.6', '.env_python3.8', '.env_python2.7']
+let g:ale_python_auto_virtualenv = 1
+" let g:ale_virtualenv_dir_name = ['.venv', '.env_python3.12', '.env_python3.6', '.env_python3.8', '.env_python2.7']
 let g:ale_linters = {
-            \ 'python': ['isort', 'black', 'flake8', 'mypy', 'jedils']
+            \ 'python': ['ruff', 'isort', 'black', 'flake8', 'mypy'],
             \ }
 let g:ale_fixers = {
-            \ 'python': ['remove_trailing_lines', 'trim_whitespace', 'autoflake', 'isort', 'black']
+            \ 'python': ['remove_trailing_lines', 'trim_whitespace', 'ruff', 'ruff_format', 'autoflake', 'isort', 'black']
             \}
 
 let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
 let g:ale_python_black_options = '--line-length=100'
-let g:ale_completion_enabled = 0
-let g:ale_disable_lsp = 1
+let g:ale_completion_enabled = 1
+" let g:ale_disable_lsp = 1
 let g:ale_pattern_options = {'/tmp/.*\.py$': {'ale_enabled': 0}}
 let g:ale_list_vertical = 1
 let g:ale_sign_error = '✗'
 let g:ale_sign_warning = '~'
 let g:ale_echo_msg_format = "%linter%:%severity%:%code: %%s "
+let g:ale_lsp_suggestions = 1
 if empty($ALE_FIX_ON_SAVE_IGNORE)
     let g:ale_fix_on_save = 1
 endif
+
 " mapping to toggle ALE on buffer C-a is "increment number"
 " nmap <silent> <C-a> <Plug>(ale_toggle_buffer)
 
@@ -288,8 +302,6 @@ let g:vim_markdown_new_list_item_indent = 2
 let g:vim_markdown_no_extensions_in_markdown = 1
 let g:vim_markdown_auto_insert_bullets = 0
 let g:vim_markdown_edit_url_in = 'tab'
-
-autocmd FileType markdown set conceallevel=2
 
 " lightline
 let g:lightline = {
@@ -327,6 +339,9 @@ let g:readonly_python = 0
 
 " vim-gutentags
 let g:gutentags_cache_dir = expand('~/.cache/vim-tags')
+
+" vim-mundo
+let g:mundo_verbose_graph = 0
 
 " Autocommands
 " ============
@@ -385,8 +400,8 @@ augroup localconfig
             set suffixesadd=.py
 
             " Protect virtualenv files
-            if exists("g:readonly_paths") && index(g:readonly_paths, 'python\d+') == -1
-                call extend(g:readonly_paths, g:ale_virtualenv_dir_name)
+            if exists("g:readonly_paths") && index(g:readonly_paths, $VIRTUAL_ENV) == -1
+                call extend(g:readonly_paths, [$VIRTUAL_ENV])
             endif
 
             " Update path for env
@@ -436,7 +451,7 @@ augroup localconfig
     " mkdir -p on write
     autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
       function! s:auto_mkdir(dir, force)
-        if &diff && !isdirectory(a:dir)
+        if !&diff && !isdirectory(a:dir)
             \ && (a:force
             \       || input("'" . a:dir . "' does not exist. Create? [y/N] ") =~? '^y\%[es]$')
           call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
@@ -444,16 +459,17 @@ augroup localconfig
       endfunction
 
     " WSL specific
+    " - WSL yank support
     if !empty($WSLENV)
-        " WSL yank support
         let s:clip = exepath('clip.exe')
         if executable(s:clip)
             augroup WSLYank
                 autocmd!
-                autocmd TextYankPost * call system(s:clip, v:event.regcontents) | echo "Use Shift+Ins to Paste!"
+                autocmd TextYankPost * if v:event.operator ==# 'y' | silent call system(s:clip, @0) | echo "Use Shift+Ins to Paste!" | endif
             augroup END
         endif
     endif
+
 
     " Filetype specific
     " - avro files
@@ -465,7 +481,7 @@ augroup localconfig
     autocmd BufNewFile,BufRead *.spec
         \ let packager = "Steven Fernandez <lonetwin@fedoraproject.org>"
     autocmd BufNewFile *.spec
-        \ 0r $HOME/.vim/template.spec | ks | call NewSpec() | 's
+        \ 0r $HOME/.vim/templates/tmpl.spec | ks | call NewSpec() | 's
         fun NewSpec()
             exe "g/Name:/s/Name:/Name:\t\t" . expand("%:t:r")
         endfun
@@ -511,14 +527,18 @@ augroup localconfig
         \ iabbrev <expr> {date} strftime('%F') . '<CR>----------<CR><CR>*'
 
     " - convenience when editing md files
+    autocmd FileType markdown set conceallevel=2
     autocmd BufNewFile,BufRead *.md
         \ iabbrev <expr> {date} '# ' . strftime('%a, %F') . '<CR><CR>*'
 
     " Vagrant file
-    autocmd BufNewFile Vagrantfile 0r $HOME/.vim/template.vagrantfile
+    autocmd BufNewFile Vagrantfile 0r $HOME/.vim/templates/tmpl.vagrantfile
+
+    " bash files
+    autocmd BufNewFile *.sh 0r $HOME/.vim/templates/tmpl.bash
 
     " Office stuff -- start
-    autocmd BufNewFile,BufRead COMMIT_EDITMSG setlocal textwidth=78
+    autocmd BufNewFile,BufRead COMMIT_EDITMSG setlocal textwidth=100
     " Office stuff -- end
 
 augroup END
@@ -531,6 +551,7 @@ augroup END
 " mounted paths from multiple systems and need to keep a copy of the same file
 " sync'd on all systems
 command -nargs=1 -complete=dir DuplicateAt autocmd BufWritePost * w! <args>%
+command -nargs=0  DuplicateAtDel autocmd! BufWritePost *
 
 " HTML formatting
 command -range=% FixHtml :<line1>,<line2>s/> *</>\r</g<bar>normal gg=G
@@ -542,6 +563,12 @@ command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
 
 " Custom functions
 " ================
+
+function QuickFixPopulate(cmd_str, fmt="%f:%l")
+    let &errorformat=a:fmt
+    cexpr systemlist(a:cmd_str)
+    set errorformat&
+endfunction
 
 " Session Management
 function SaveSession()
@@ -617,3 +644,163 @@ autocmd QuickFixCmdPost    l* nested lwindow
 "
 " " Create a mapping to trigger the function (e.g., F5 key)
 " vnoremap <F5> :call ReplaceWithPythonOutput()<CR>
+"
+"
+function! FindImportStatement()
+    " Get the word under the cursor
+    let l:word = expand("<cword>")
+    " Search for a line that matches 'import.*<cword>'
+    let l:match = search('import.*' . l:word, 'nw')
+
+    if l:match > 0
+        " If a match is found, echo the line
+        echo getline(l:match)
+    else
+        " If no match is found, display a message
+        echo "No import statement found for " . l:word
+    endif
+endfunction
+
+" Map the function to a key combination, e.g., <leader>fi
+nnoremap <leader>fi :call FindImportStatement()<CR>
+
+" AddVenvModulePath.vim
+" Call with:  :call AddVenvModulePath('requests')
+" It will add $VIRTUAL_ENV/.../site-packages/requests to 'path'.
+
+function! AddVenvModulePath(mod) abort
+  " 1. Make sure we're in a virtualenv
+  if empty($VIRTUAL_ENV)
+    echoerr 'VIRTUAL_ENV is not set'
+    return
+  endif
+
+  let l:root = $VIRTUAL_ENV
+  let l:pkg  = a:mod
+
+  " 2. Find matching site-packages directories
+  let l:dirs = glob(l:root . '/lib/python*/site-packages/' . l:pkg, 0, 1)
+  let l:dirs += glob(l:root . '/lib64/python*/site-packages/' . l:pkg, 0, 1)
+
+  if empty(l:dirs)
+    echoerr printf("Module '%s' not found under %s/**/*.site-packages", l:pkg, l:root)
+    return
+  endif
+
+  " 3. For each match, canonicalize and add to 'path'
+  for l:dir in l:dirs
+    let l:full = fnamemodify(l:dir, ':p')
+    execute 'set path+=' . fnameescape(l:full)
+    echom printf("Added %s to 'path'", l:full)
+  endfor
+endfunction
+
+
+" ===================================================================
+" ExecPy(): eval the selected text (char- or line-wise) or a line-range
+" and replace it with the result.
+" ===================================================================
+function! ExecPy(...) abort
+  " ———————————————————————
+  " 1) Figure out what kind of invocation we have
+  " ———————————————————————
+  if a:0 == 2
+    " :<start>,<end>ExecPy → full lines
+    let l:start_line = a:1
+    let l:end_line   = a:2
+    let l:start_col  = 1
+    let l:end_col    = len(getline(l:end_line))
+  elseif a:0 == 1
+    " ExecPy(<vismode>) from our vnoremap
+    let l:vis = a:1
+    if l:vis ==# 'V'
+      " line-wise visual: grab whole lines
+      let l:start_line = getpos("'<")[1]
+      let l:end_line   = getpos("'>")[1]
+      let l:start_col  = 1
+      let l:end_col    = len(getline(l:end_line))
+    elseif l:vis ==# 'v'
+      " char-wise visual: grab just those columns
+      let l:start_line = getpos("'<")[1]
+      let l:start_col  = getpos("'<")[2]
+      let l:end_line   = getpos("'>")[1]
+      let l:end_col    = getpos("'>")[2]
+    elseif l:vis ==# "\<C-V>" || l:vis ==# "\<C-v>"
+      echoerr "ExecPy(): block-wise visual selection is not supported."
+      return
+    else
+      echoerr "ExecPy(): unknown visual mode “".l:vis."”"
+      return
+    endif
+  else
+    echoerr "ExecPy(): call with either a visual selection or a line-range."
+    return
+  endif
+
+  " ———————————————————————————————
+  " 2) Hand off to Python for eval/exec + capture + replace
+  " ———————————————————————————————
+  python3 << EOF
+import vim, io, contextlib
+
+sl = int(vim.eval('l:start_line'))
+sc = int(vim.eval('l:start_col'))
+el = int(vim.eval('l:end_line'))
+ec = int(vim.eval('l:end_col'))
+buf = vim.current.buffer
+
+# extract exactly what was selected
+if sl == el:
+    line   = buf[sl-1]
+    code   = line[sc-1:ec-1]
+    prefix = line[:sc-1]
+    suffix = line[ec-1:]
+else:
+    first  = buf[sl-1][sc-1:]
+    middle = buf[sl:el-1]
+    last   = buf[el-1][:ec]
+    code   = '\n'.join([first] + middle + [last])
+    prefix = buf[sl-1][:sc-1]
+    suffix = buf[el-1][ec:]
+
+# execute or eval, capturing stdout or the value of a lone expression
+stream = io.StringIO()
+with contextlib.redirect_stdout(stream):
+    try:
+        res = eval(code, {})
+        if res is not None:
+            print(res)
+    except Exception:
+        exec(code, {})
+
+out_lines = stream.getvalue().splitlines()
+if not out_lines:
+    out_lines = ['']
+
+# splice the result back into the buffer
+if sl == el:
+    buf[sl-1] = prefix + out_lines[0] + suffix
+    for l in out_lines[1:]:
+        buf.append(l, sl-1)
+else:
+    buf[sl-1] = prefix + out_lines[0]
+    buf[el-1] = out_lines[-1] + suffix
+    if el - sl > 1:
+        del buf[sl:el-1]
+    for idx, l in enumerate(out_lines[1:-1]):
+        buf.append(l, sl-1+idx)
+EOF
+endfunction
+
+" —————————————————————————————————————————
+" 3) A command for explicit ranges:
+"      :5,10ExecPy
+"    will run lines 5–10 as a block.
+" —————————————————————————————————————————
+command! -range ExecPy <line1>,<line2>call ExecPy(<line1>,<line2>)
+
+" —————————————————————————————————————————
+" 4) A visual-mode mapping.  Select text (char- or line-wise) and hit <leader>p.
+"    We pass in the visualmode() so the function knows how to slice.
+" —————————————————————————————————————————
+vnoremap <silent> <leader>p :<C-U>call ExecPy(visualmode())<CR>
