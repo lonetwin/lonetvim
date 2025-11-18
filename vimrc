@@ -343,6 +343,11 @@ let g:gutentags_cache_dir = expand('~/.cache/vim-tags')
 " vim-mundo
 let g:mundo_verbose_graph = 0
 
+" Update copilot workspace folder
+if !empty($HACKON_ENV)
+    let g:copilot_workspace_folders = [$HACKON_ENV]
+endif
+
 " Autocommands
 " ============
 
