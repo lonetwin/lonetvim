@@ -199,6 +199,12 @@ tnoremap <Esc> <C-\><C-n>
 " Search on word boundary
 nnoremap <leader>/ /\<\><left><left>
 
+" JSON formatting
+" - visual mode
+xnoremap <leader>jq :!jq .<CR>
+" - entire file
+nnoremap <leader>jq :%!jq .<CR>
+
 " Toggle copilot
 function! ToggleCopilot()
     if exists('g:copilot_enabled') && g:copilot_enabled
@@ -512,7 +518,7 @@ augroup localconfig
 
     " - set custom formatprg for some filetypes
     " Note to self: vim is not too good at detecting json files, make sure ft is set!
-    autocmd Filetype json setlocal formatprg=python\ -m\ json.tool
+    autocmd Filetype json setlocal formatprg=jq\ .\
 
     " - html/templates
     autocmd FileType html
